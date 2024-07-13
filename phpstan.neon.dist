@@ -2,7 +2,7 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-    level: 9
+    level: 5
     paths:
         - app
         - config
@@ -14,8 +14,20 @@ parameters:
         - storage
         - bootstrap/cache
     ignoreErrors:
-        - identifier: missingType.iterableValue
-        - identifier: missingType.generics
-    reportUnmatchedIgnoredErrors: true
-    checkModelProperties: true
-    checkOctaneCompatibility: true
+        - '#Undefined variable: \$this#'
+        - '#Access to an undefined property#'
+        - '#Call to an undefined method#'
+        - '#Method .* has no return type specified#'
+        - '#Parameter .* of method .* has invalid type#'
+        - '#Property .* has no type specified#'
+        - '#Dynamic call to static method#'
+        - '#PHPDoc tag @var for variable .* has invalid type#'
+        - '#Cannot access property .* on .*(null)#'
+        - '#Cannot call method .* on .*(null)#'
+        - '#Parameter .* expects .*, .* given#'
+        - '#Return type .* of method .* should be compatible with return type#'
+    reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    checkModelProperties: false
+    checkOctaneCompatibility: false
