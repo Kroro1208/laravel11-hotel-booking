@@ -45,3 +45,5 @@ jobs:
         with:
           commit_message: Apply PHP CS Fixer and Larastan fixes
           branch: ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
