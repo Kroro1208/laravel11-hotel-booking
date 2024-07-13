@@ -2,12 +2,28 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-    level: max
+    level: 9
     paths:
         - app
+        - config
         - database
         - routes
+        - tests
     excludePaths:
         - vendor
+        - storage
+        - bootstrap/cache
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        - '#Dummy error to demonstrate the format#'
+        # Add specific errors to ignore here, for example:
+        # - '#PHPDoc tag @var#'
+        # - '#Call to an undefined method#'
+    reportUnmatchedIgnoredErrors: true
+    noUnnecessaryCollectionCall: true
+    checkModelProperties: true
+    checkPhpDocMissingReturn: true
+    treatPhpDocTypesAsCertain: false
+    rememberPossiblyImpureFunctionValues: false
+    checkOctaneCompatibility: true
+    checkLazyLoadingOnly: true
