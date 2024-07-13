@@ -13,12 +13,9 @@ parameters:
         - vendor
         - storage
         - bootstrap/cache
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        # Add specific errors to ignore here, for example:
-        # - '#PHPDoc tag @var#'
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
     reportUnmatchedIgnoredErrors: true
-    noUnnecessaryCollectionCall: true
     checkModelProperties: true
     checkOctaneCompatibility: true

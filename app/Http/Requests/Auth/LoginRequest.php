@@ -42,6 +42,10 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            $user->sendEmailVerificationNotification();
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
