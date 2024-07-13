@@ -18,12 +18,7 @@ parameters:
     ignoreErrors:
         # Add specific errors to ignore here, for example:
         # - '#PHPDoc tag @var#'
-        # - '#Call to an undefined method#'
     reportUnmatchedIgnoredErrors: true
     noUnnecessaryCollectionCall: true
     checkModelProperties: true
-    checkPhpDocMissingReturn: true
-    treatPhpDocTypesAsCertain: false
-    rememberPossiblyImpureFunctionValues: false
     checkOctaneCompatibility: true
-    checkLazyLoadingOnly: true
