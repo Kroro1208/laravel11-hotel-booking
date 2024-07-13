@@ -1,0 +1,13 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+        - database
+        - routes
+    excludePaths:
+        - vendor
+    ignoreErrors:
+        - '#Dummy error to demonstrate the format#'
