@@ -16,7 +16,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2" # Changed from 8.1 to 8.2
+          php-version: "8.2"
           tools: composer:v2
 
       - name: Cache Composer packages
@@ -35,7 +35,13 @@ jobs:
         run: composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run PHP-CS-Fixer
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix
 
       - name: Run Larastan
-        run: vendor/bin/phpstan analyse
+        run: vendor/bin/phpstan analyse --error-format=github
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply PHP CS Fixer and Larastan fixes
+          branch: ${{ github.head_ref }}
