@@ -9,7 +9,7 @@
                         <option>Deutsch</option>
                         <option>Português</option>
                         <option>简体中文</option>
-                    </select>	
+                    </select>
                 </div>
             </div>
 
