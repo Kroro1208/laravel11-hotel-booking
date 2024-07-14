@@ -18,7 +18,7 @@
                                 </a>
 
                                 <div class="accordion-content">
-                                    <p> 
+                                    <p>
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam at diam leo. Mauris a ante placerat,
                                         dignissim orci eget, viverra ante. Mauris ornare pellentesque augue. Curabitur leo nibh, ultrices 
                                         vel ultricies eu, vulputate at felis.
@@ -61,7 +61,6 @@
                                     <i class='bx bx-plus'></i>
                                     How I Will Make Payment for Room Book?
                                 </a>
-
                                 <div class="accordion-content show">
                                     <p>
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam at diam leo. Mauris a ante placerat,

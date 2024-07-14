@@ -25,8 +25,12 @@
                             <a href="tel:+1-(123)-456-7890">090-9533-7513</a>
                         </li>
                         <li>
-                            <i class='bx bx-envelope'></i>
-                            <a href="mailto:hello@atoli.com">hello@atoli.com</a>
+                            <i class='bx bxs-user-pin'></i>
+                            <a href="{{ route('login') }}">ログイン</a>
+                        </li>
+                        <li>
+                            <i class='bx bxs-user-rectangle'></i>
+                            <a href="{{ route('register') }}">登録</a>
                         </li>
                     </ul>
                 </div>
