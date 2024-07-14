@@ -3,7 +3,7 @@
 <div class="page-content">
     <!--breadcrumb-->
     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-        <div class="breadcrumb-title pe-3">User Profile</div>
+        <div class="breadcrumb-title pe-3">管理人プロフィール</div>
         <div class="ps-3">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
@@ -34,10 +34,11 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex flex-column align-items-center text-center">
-                                <img src="{{ asset('backend/assets/images/favicon.png') }}" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
+                                <img src="{{ (!empty($profileData->photo)) ? url('upload/admin_images/'. $profileData->photo) : url('upload/no_image.jpg')}}" alt="Admin"
+                                class="rounded-circle p-1 bg-primary" width="110" height="110">
                                 <div class="mt-3">
-                                    <h4>Naoya</h4>
-                                    <p class="text-secondary mb-1">Full Stack Developer</p>
+                                    <h4>{{ $profileData->name }}</h4>
+                                    <p class="text-secondary mb-1">{{ $profileData->email }}</p>
                                     <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                 </div>
                             </div>
@@ -64,42 +65,42 @@
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-sm-3">
-                                    <h6 class="mb-0">Full Name</h6>
+                                    <h6 class="mb-0">お名前</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="John Doe" />
+                                    <input name='name' type="text" class="form-control" value="{{$profileData->name}}" />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-3">
-                                    <h6 class="mb-0">Email</h6>
+                                    <h6 class="mb-0">メールアドレス</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="john@example.com" />
+                                    <input name="email" type="text" class="form-control" value="{{$profileData->email}}" />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-3">
-                                    <h6 class="mb-0">Phone</h6>
+                                    <h6 class="mb-0">電話番号</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="(239) 816-9029" />
+                                    <input type="text" name="phone" class="form-control" value="{{$profileData->phone}}" />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-3">
-                                    <h6 class="mb-0">Mobile</h6>
+                                    <h6 class="mb-0">住所</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="(320) 380-4539" />
+                                    <input type="text" name="address" class="form-control" value="{{$profileData->address}}" />
                                 </div>
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-3">
-                                    <h6 class="mb-0">Address</h6>
+                                    <h6 class="mb-0">画像</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="Bay Area, San Francisco, CA" />
+                                    <input type="file" name="photo" class="form-control" id="formFile" value="" />
                                 </div>
                             </div>
                             <div class="row">
