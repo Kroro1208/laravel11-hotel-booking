@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--favicon-->
-	<link rel="icon" href="assets/images/favicon-32x32.png" type="image/png" />
+	<link rel="icon" href="assets/images/favicon2.png" type="image/png" />
 	<!--plugins-->
 	<link href="{{asset('backend/assets/plugins/simplebar/css/simplebar.css')}}" rel="stylesheet" />
 	<link href="{{asset('backend/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css')}}" rel="stylesheet" />
@@ -52,7 +52,11 @@
                                             @csrf
 											<div class="col-12">
 												<label for="inputEmailAddress" class="form-label">お名前/メールアドレス/電話番号</label>
-												<input type="text" class="form-control" name="login" id="login" placeholder="上記のいずれかを入力してください">
+												<input type="text" class="form-control @error('login') is-invalid @enderror"
+												name="login" id="login" placeholder="上記のいずれかを入力してください">
+												@error('login')
+													<span class="text-danger">{{ $message }}</span>
+												@enderror
 											</div>
 											<div class="col-12">
 												<label for="inputChoosePassword" class="form-label">パスワード</label>
