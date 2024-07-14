@@ -34,7 +34,7 @@ class LoginRequest extends FormRequest
             ->orWhere('phone', $this->login)
             ->first();
 
-        if (!$user || !Auth::attempt(['email' => $user->email, 'password' => $this->password], $this->boolean('remember'))) {
+        if (! $user || ! Auth::attempt(['email' => $user->email, 'password' => $this->password], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -47,7 +47,7 @@ class LoginRequest extends FormRequest
 
     public function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
