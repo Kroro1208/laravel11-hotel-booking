@@ -39,7 +39,7 @@
                                             <img src="assets/images/avatars/avatar-1.png" class="msg-avatar" alt="user avatar">
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h6 class="msg-name">Daisy Anderson<span class="msg-time float-end">5 sec
+                                            <h6 class="msg-name">管理人<span class="msg-time float-end">5 sec
                                         ago</span></h6>
                                             <p class="msg-info">The standard chunk of lorem</p>
                                         </div>
@@ -336,14 +336,14 @@
             </div>
             <div class="user-box dropdown px-3">
                 <a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{asset('backend/assets/images/avatars/avatar-2.png')}}" class="user-img" alt="user avatar">
+                    <img src="{{asset('backend/assets/images/favicon.png')}}" class="user-img" alt="user avatar">
                     <div class="user-info">
-                        <p class="user-name mb-0">Pauline Seitz</p>
-                        <p class="designattion mb-0">Web Designer</p>
+                        <p class="user-name mb-0">管理人</p>
+                        <p class="designattion mb-0">WebDeveloper</p>
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
+                    <li><a class="dropdown-item d-flex align-items-center" href="{{route('admin.profile')}}"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
                     </li>
                     <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i class="bx bx-cog fs-5"></i><span>Settings</span></a>
                     </li>
