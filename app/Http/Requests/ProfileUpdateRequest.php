@@ -18,6 +18,20 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => '名前',
+            'email' => 'メールアドレス',
+            'phone' => '電話番号',
+            'address' => '住所',
+            'photo' => 'プロフィール写真',
         ];
     }
 }
