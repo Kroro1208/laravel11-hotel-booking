@@ -35,8 +35,9 @@ class AdminController extends Controller
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
+
         return view('admin.profile', [
-            'profileData' => $profileData
+            'profileData' => $profileData,
         ]);
     }
 }
