@@ -74,8 +74,9 @@ class AdminController extends Controller
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
+
         return view('admin.password_edit', [
-            'profileData' => $profileData
+            'profileData' => $profileData,
         ]);
     }
 
@@ -83,26 +84,26 @@ class AdminController extends Controller
     {
         $request->validate([
             'old_password' => 'required',
-            'new_password' => 'required|confirmed'
+            'new_password' => 'required|confirmed',
         ]);
 
-        if (!Hash::check($request->old_password, auth::user()->password)) {
-            $notification = array(
+        if (! Hash::check($request->old_password, auth::user()->password)) {
+            $notification = [
                 'message' => 'パスワードが致しません',
-                'alert-type' => 'error'
-            );
+                'alert-type' => 'error',
+            ];
 
             return back()->with($notification);
         }
 
         User::whereId(auth::user()->id)->update([
-            'password' => Hash::make($request->new_password)
+            'password' => Hash::make($request->new_password),
         ]);
 
-        $notification = array(
+        $notification = [
             'message' => 'パスワードが更新されました',
-            'alert-type' => 'success'
-        );
+            'alert-type' => 'success',
+        ];
 
         return back()->with($notification);
     }
