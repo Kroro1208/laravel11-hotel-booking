@@ -1,19 +1,18 @@
 <div class="navbar-area">
-    <!-- Menu For Mobile Device -->
+    <!-- モバイル用 -->
     <div class="mobile-nav">
         <a href="index.html" class="logo">
-            <img src="assets/img/logos/logo-1.png" class="logo-one" alt="Logo">
-            <img src="assets/img/logos/footer-logo1.png" class="logo-two" alt="Logo">
+            <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one" alt="Logo">
+            <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-two" alt="Logo">
         </a>
     </div>
 
-    <!-- Menu For Desktop Device -->
     <div class="main-nav">
         <div class="container">
             <nav class="navbar navbar-expand-md navbar-light ">
                 <a class="navbar-brand" href="index.html">
-                    <img src="assets/img/logos/logo-1.png" class="logo-one" alt="Logo">
-                    <img src="assets/img/logos/footer-logo1.png" class="logo-two" alt="Logo">
+                    <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one" alt="Logo" width="80px" height="80px">
+                    <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-two" alt="Logo" width="80px" height="80px">
                 </a>
 
                 <div class="collapse navbar-collapse mean-menu" id="navbarSupportedContent">

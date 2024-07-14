@@ -18,11 +18,11 @@
                     <ul>
                         <li>
                             <i class='bx bx-home-alt'></i>
-                            <a href="#">123 Virgil A Stanton, Virginia, USA</a>
+                            <a href="#">東京都港区東新橋6-18-5</a>
                         </li>
                         <li>
                             <i class='bx bx-phone-call'></i>
-                            <a href="tel:+1-(123)-456-7890">+1 (123) 456 7890</a>
+                            <a href="tel:+1-(123)-456-7890">090-9533-7513</a>
                         </li>
                         <li>
                             <i class='bx bx-envelope'></i>
