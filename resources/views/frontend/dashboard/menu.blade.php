@@ -6,7 +6,7 @@
     <div class="services-bar-widget">
         <h3 class="title">ユーザー管理用</h3>
         <div class="side-bar-categories">
-            <img src="{{(!empty($profileData->photo)) ? url('upload/admin_images' . $profileData->photo) : url('upload/no_image.jpg')}}"
+            <img src="{{ (!empty($profileData->photo)) ? asset('upload/user_images/'. $profileData->photo) : asset('upload/no_image.jpg') }}"
                 class="rounded mx-auto d-block" alt="Image" style="width:100px; height:100px;">
                 <br>
                 <center>
