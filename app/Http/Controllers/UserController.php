@@ -20,8 +20,9 @@ class UserController extends Controller
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
+
         return view('frontend.dashboard.edit_profile', [
-            'profileData' => $profileData
+            'profileData' => $profileData,
         ]);
     }
 
