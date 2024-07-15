@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReservationAreaController;
 use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Route;
@@ -36,3 +37,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/admin/login', [AdminController::class, 'adminLogin'])->name('admin.login');
+
+Route::get('/reservation/area', [ReservationAreaController::class, 'reservationArea'])->name('reservation.area');
