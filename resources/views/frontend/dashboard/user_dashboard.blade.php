@@ -1,5 +1,19 @@
 @extends('frontend.main')
 @section('content')
+@if(session('message'))
+    <div class="alert alert-{{ session('alert-type') }} alert-dismissible fade show" role="alert">
+        <div class="d-flex justify-content-center align-items-center">
+            <i class="bi me-2 
+                @if(session('alert-type') == 'success') bi-check-circle-fill text-success
+                @elseif(session('alert-type') == 'danger') bi-exclamation-triangle-fill text-danger
+                @elseif(session('alert-type') == 'info') bi-exclamation-circle-fill text-info
+                @else bi-info-circle-fill text-info
+                @endif" style="font-size: 1.25rem;"></i>
+            <strong class="flex-grow-1 text-center">{{ session('message') }}</strong>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 <div class="service-details-area pt-100 pb-70">
     <div class="container">
         <div class="row">

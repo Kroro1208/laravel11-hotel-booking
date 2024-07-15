@@ -1,11 +1,16 @@
 <x-guest-layout>
+    @if(session('message'))
+    <div class="alert alert-{{ session('alert-type') }} alert-dismissible fade show" role="alert">
+        <div class="d-flex justify-content-center align-items-center">
+            <i class="bi me-2
+                @if(session('alert-type') == 'success') bi-check-circle-fill text-success
+                @endif" style="font-size: 1.25rem;"></i>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
-    @if(session('message'))
-        <div class="alert alert-{{ session('alert-type') }}">
-            {{ session('message') }}
-        </div>
-    @endif
 
     <form method="POST" action="{{ route('login') }}">
         @csrf

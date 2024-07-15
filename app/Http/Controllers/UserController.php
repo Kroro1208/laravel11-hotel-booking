@@ -64,7 +64,7 @@ class UserController extends Controller
             'alert-type' => 'success'
         );
 
-        return to_route('/login')->with($notification);
+        return to_route('login')->with($notification);
     }
 
     public function userPasswordEdit()
