@@ -21,13 +21,13 @@
                         <a href="{{ route('user.profile') }}">プロフィール</a>
                     </li>
                     <li>
-                        <a href="#">パスワード変更</a>
+                        <a href="{{ route('user.password.edit') }}">パスワード変更</a>
                     </li>
                     <li>
                         <a href="#">予約詳細</a>
                     </li>
                     <li>
-                        <a href="#">ログアウト</a>
+                        <a href="{{ route('user.logout')}} ">ログアウト</a>
                     </li>
                 </ul>
         </div>

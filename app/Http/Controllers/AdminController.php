@@ -12,12 +12,12 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function AdminDashboard(): View
+    public function adminDashboard(): View
     {
         return view('admin.index');
     }
 
-    public function AdminLogout(Request $request): RedirectResponse
+    public function adminLogout(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
 
@@ -28,12 +28,12 @@ class AdminController extends Controller
         return redirect('/admin/login');
     }
 
-    public function AdminLogin(): View
+    public function adminLogin(): View
     {
         return view('admin.login');
     }
 
-    public function AdminProfile()
+    public function adminProfile()
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
@@ -43,7 +43,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function AdminProfileStore(ProfileUpdateRequest $request): RedirectResponse
+    public function adminProfileStore(ProfileUpdateRequest $request): RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -70,7 +70,7 @@ class AdminController extends Controller
         return to_route('admin.profile')->with('success', 'プロフィールが更新されました');
     }
 
-    public function AdminPasswordEdit()
+    public function adminPasswordEdit()
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
@@ -80,14 +80,14 @@ class AdminController extends Controller
         ]);
     }
 
-    public function AdminPasswordUpdate(Request $request): RedirectResponse
+    public function adminPasswordUpdate(Request $request): RedirectResponse
     {
         $request->validate([
             'old_password' => 'required',
             'new_password' => 'required|confirmed',
         ]);
 
-        if (! Hash::check($request->old_password, auth::user()->password)) {
+        if (!Hash::check($request->old_password, auth::user()->password)) {
             $notification = [
                 'message' => 'パスワードが致しません',
                 'alert-type' => 'error',
