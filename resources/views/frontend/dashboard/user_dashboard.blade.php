@@ -15,7 +15,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
-                                    <div class="card-header">Total Booking</div>
+                                    <div class="card-header">全ての予約</div>
                                         <div class="card-body">
                                             <h1 class="card-title" style="font-size: 45px;">3 Total</h1>
                                         </div>
@@ -23,7 +23,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="card text-white bg-warning mb-3" style="max-width: 18rem;">
-                                        <div class="card-header">Pending Booking </div>
+                                        <div class="card-header">Pending Booking</div>
                                             <div class="card-body">
                                                 <h1 class="card-title" style="font-size: 45px;">3 Pending</h1>
                                             </div>
