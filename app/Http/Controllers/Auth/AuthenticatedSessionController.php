@@ -32,10 +32,10 @@ class AuthenticatedSessionController extends Controller
         $profileData = User::find($id);
         $username = $profileData->name;
 
-        $notification = array(
+        $notification = [
             'message' => "ユーザー名 $username でログイン成功しました",
-            'alert-type' => 'info'
-        );
+            'alert-type' => 'info',
+        ];
 
         $url = '';
         if ($request->user()->role === 'admin') {
