@@ -6,7 +6,6 @@ use App\Http\Requests\UserProfileUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
 use Illuminate\View\View;
 
 class UserController extends Controller
