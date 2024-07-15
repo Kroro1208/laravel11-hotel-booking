@@ -59,10 +59,10 @@ class UserController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        $notification = array(
+        $notification = [
             'message' => 'ログアウトに成功しました',
-            'alert-type' => 'success'
-        );
+            'alert-type' => 'success',
+        ];
 
         return to_route('login')->with($notification);
     }
@@ -71,8 +71,9 @@ class UserController extends Controller
     {
         $id = Auth::user()->id;
         $profileData = User::find($id);
+
         return view('frontend.dashboard.password_edit', [
-            'profileData' => $profileData
+            'profileData' => $profileData,
         ]);
     }
 
@@ -80,26 +81,27 @@ class UserController extends Controller
     {
         $request->validate([
             'old_password' => 'required',
-            'new_password' => 'required|confirmed'
+            'new_password' => 'required|confirmed',
         ]);
 
-        if (!Hash::check($request->old_password, auth::user()->password)) {
+        if (! Hash::check($request->old_password, auth::user()->password)) {
             $notification = [
                 'message' => 'パスワードが一致しません',
-                'alert-type' => 'error'
+                'alert-type' => 'error',
             ];
 
             return back()->with($notification);
         }
 
         User::whereId(auth::user()->id)->update([
-            'password' => Hash::make($request->new_password)
+            'password' => Hash::make($request->new_password),
         ]);
 
         $notification = [
             'message' => 'パスワードが更新されました',
             'alert-type' => 'success',
         ];
+
         return back()->with($notification);
     }
 }
