@@ -10,4 +10,14 @@ class ReservationDetail extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    public function reservation()
+    {
+        return $this->belongsTo(Reservation::class);
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
 }

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('reservation_id')->constrained()->cascadeOnDelete();
+            $table->decimal('amount');
+            $table->string('payment_method');
+            $table->string('transaction_id');
+            $table->string('status');
             $table->timestamps();
         });
     }
