@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PlanStoreRequest;
 use App\Models\Plan;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PlanController extends Controller
@@ -15,8 +14,9 @@ class PlanController extends Controller
     {
         // 全てのプランを取得してビューに渡す
         $plans = Plan::all();
+
         return view('backend.plan.index', [
-            'plans' => $plans
+            'plans' => $plans,
         ]);
     }
 
@@ -39,6 +39,4 @@ class PlanController extends Controller
 
         return to_route('plan.index')->with('success', 'プランの作成に成功しました');
     }
-
-   
 }
