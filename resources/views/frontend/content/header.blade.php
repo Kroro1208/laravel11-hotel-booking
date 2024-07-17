@@ -36,6 +36,10 @@
                         @else
                             <li>
                                 <i class='bx bxs-user-pin'></i>
+                                <a href="{{ route('admin.login') }}">管理人ログイン</a>
+                            </li>
+                            <li>
+                                <i class='bx bxs-user-pin'></i>
                                 <a href="{{ route('login') }}">ログイン</a>
                             </li>
                             <li>

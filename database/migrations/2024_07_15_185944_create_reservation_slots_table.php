@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->date('date');
-            $table->decimal('price');
-            $table->string('status');
+            $table->decimal('price', 8, 2);
+            $table->enum('status', ['available', 'few', 'unavailable']);
             $table->timestamps();
         });
     }

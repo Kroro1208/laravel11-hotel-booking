@@ -35,7 +35,11 @@
                 <div class="menu-title">予約エリア</div>
             </a>
             <ul>
-                <li> <a href="{{ route('reservation.area') }}"><i class='bx bx-radio-circle'></i>予約の更新</a>
+                <li> <a href="{{ route('plan.create') }}"><i class='bx bx-radio-circle'></i>プラン作成</a>
+                </li>
+            </ul>
+            <ul>
+                <li> <a href="{{ route('plan.index') }}"><i class='bx bx-radio-circle'></i>プラン一覧</a>
                 </li>
             </ul>
         </li>
