@@ -50,3 +50,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/plan/{plan}', [AdminPlanController::class, 'update'])->name('plan.update');
     Route::delete('/plan/{plan}', [AdminPlanController::class, 'destroy'])->name('plan.destroy');
 });
+
+Route::get('/admin/login', [AdminController::class, 'AdminLogin'])->name('admin.login');
