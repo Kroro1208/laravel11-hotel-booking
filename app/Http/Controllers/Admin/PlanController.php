@@ -98,7 +98,6 @@ class PlanController extends Controller
         ]);
     }
 
-
     public function update(PlanStoreRequest $request, Plan $plan): RedirectResponse
     {
         try {

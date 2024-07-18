@@ -88,7 +88,7 @@ class AdminController extends Controller
             'new_password' => 'required|confirmed',
         ]);
 
-        if (!Hash::check($request->old_password, auth::user()->password)) {
+        if (! Hash::check($request->old_password, auth::user()->password)) {
             $notification = [
                 'message' => 'パスワードが致しません',
                 'alert-type' => 'error',

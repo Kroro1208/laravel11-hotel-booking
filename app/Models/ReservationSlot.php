@@ -20,9 +20,10 @@ class ReservationSlot extends Model
         'status',
     ];
 
-    const STATUS_AVAILABLE = 'available';
-    const STATUS_FEW = 'few';
-    const STATUS_UNAVAILABLE = 'unavailable';
+    // 状態の定数を定義
+    public const STATUS_AVAILABLE = 'available';
+    public const STATUS_FEW = 'few';
+    public const STATUS_UNAVAILABLE = 'unavailable';
 
     public static function getStatusOptions()
     {
