@@ -67,21 +67,14 @@ class PlanController extends Controller
 
                 Log::info('PlanRoom created', ['plan_id' => $plan->id, 'room_type_id' => $roomType->id, 'room_count' => $request->room_counts[$index]]);
 
-                $startDate = Carbon::parse($request->start_date);
-                $endDate = Carbon::parse($request->end_date);
-
-                while ($startDate <= $endDate) {
-                    ReservationSlot::create([
-                        'plan_id' => $plan->id,
-                        'room_type_id' => $roomType->id,
-                        'date' => $startDate,
-                        'total_rooms' => $request->room_counts[$index],
-                        'booked_rooms' => 0,
-                        'status' => 'available',
-                    ]);
-
-                    $startDate->addDay();
-                }
+                ReservationSlot::create([
+                    'plan_id' => $plan->id,
+                    'room_type_id' => $roomType->id,
+                    'date' => $request->start_date,
+                    'total_rooms' => $request->room_counts[$index],
+                    'booked_rooms' => 0,
+                    'status' => 'available',
+                ]);
 
                 Log::info('ReservationSlots created for room type', ['room_type' => $roomTypeName]);
             }

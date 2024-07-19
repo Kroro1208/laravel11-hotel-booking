@@ -1,5 +1,4 @@
 @extends('admin.dashboard')
-
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -83,15 +82,15 @@
                                         <span class="input-group-text">予約枠</span>
                                         <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" value="{{ old('room_counts.'.$index) }}" required min="1">
                                         <button type="button" class="btn btn-danger remove-room-type">削除</button>
+                                        </div>
                                     </div>
                                 </div>
                                 @endforeach
                             </div>
                             <button type="button" class="btn btn-secondary mt-2" id="add-room-type">部屋タイプを追加</button>
                         </div>
-
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">プラン作成</button>
+                            <button type="submit" class="btn btn-primary btn-lg px-5 mb-5">プラン作成</button>
                         </div>
                     </form>
                 </div>
@@ -99,32 +98,80 @@
         </div>
     </div>
 </div>
-@endsection
-
-@push('scripts')
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#image').change(function(e) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                $('#showImage').attr('src', e.target.result);
+<script>
+    // 即時関数を使用してグローバルスコープの汚染を防ぐ
+    (function() {
+        function initializeImagePreview() {
+            const imageInput = document.getElementById('image');
+            const showImage = document.getElementById('showImage');
+            if (imageInput && showImage) {
+                imageInput.addEventListener('change', function(e) {
+                    console.log('Image input changed');
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            showImage.src = e.target.result;
+                        }
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            } else {
+                console.error('Image input or preview element not found');
             }
-            reader.readAsDataURL(e.target.files[0]);
-        });
-
-        $('#add-room-type').click(function() {
-            let newEntry = $('.room-type-entry:first').clone();
-            newEntry.find('input').val('');
-            newEntry.find('select').val('');
-            $('#room-types-container').append(newEntry);
-        });
-
-        $(document).on('click', '.remove-room-type', function() {
-            if ($('.room-type-entry').length > 1) {
-                $(this).closest('.room-type-entry').remove();
+        }
+    
+        function initializeRoomTypeManagement() {
+            const addButton = document.getElementById('add-room-type');
+            const container = document.getElementById('room-types-container');
+            
+            if (addButton && container) {
+                addButton.addEventListener('click', function() {
+                    console.log('Add button clicked');
+                    const template = document.querySelector('.room-type-entry');
+                    if (template) {
+                        const newEntry = template.cloneNode(true);
+                        // 新しい要素のIDを一意にする
+                        newEntry.id = 'room-type-' + Date.now();
+                        container.appendChild(newEntry);
+                        console.log('New entry added');
+                    } else {
+                        console.error('Room type entry template not found');
+                    }
+                });
+    
+                container.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-room-type')) {
+                        console.log('Remove button clicked');
+                        const entry = e.target.closest('.room-type-entry');
+                        if (entry && container.children.length > 1) {
+                            entry.remove();
+                            console.log('Entry removed');
+                        }
+                    }
+                });
+            } else {
+                console.error('Add button or container not found');
             }
-        });
-    });
+        }
+    
+        function initialize() {
+            console.log('Initializing functionality');
+            initializeImagePreview();
+            initializeRoomTypeManagement();
+            
+            // デバッグ情報
+            console.log('Total room type entries: ' + document.querySelectorAll('.room-type-entry').length);
+            console.log('Add room type button exists: ' + (document.getElementById('add-room-type') !== null));
+            console.log('Remove room type buttons exist: ' + (document.querySelectorAll('.remove-room-type').length > 0));
+        }
+    
+        // DOMContentLoadedイベントを使用
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            // DOMがすでに読み込まれている場合は即時実行
+            initialize();
+        }
+    })();
 </script>
-@endpush
+@endsection
