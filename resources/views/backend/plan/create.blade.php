@@ -64,27 +64,28 @@
                                 @enderror
                             </div>
                         </div>
-
                         <div class="mb-4">
                             <label class="form-label">部屋タイプと予約枠</label>
                             <div id="room-types-container">
+                                @foreach(old('room_types', [1]) as $index => $roomType)
                                 <div class="room-type-entry mb-3">
                                     <div class="input-group">
                                         <span class="input-group-text">部屋タイプ</span>
                                         <select name="room_types[]" class="form-select @error('room_types.*') is-invalid @enderror" required>
                                             <option value="">選択してください</option>
-                                            <option value="洋室のFamily">洋室のFamily</option>
-                                            <option value="洋室のSingle">洋室のSingle</option>
-                                            <option value="洋室のDouble">洋室のDouble</option>
-                                            <option value="和室のFamily">和室のFamily</option>
-                                            <option value="和室のSingle">和室のSingle</option>
-                                            <option value="和室のDouble">和室のDouble</option>
+                                            <option value="洋室のFamily" {{ old('room_types.'.$index) == '洋室のFamily' ? 'selected' : '' }}>洋室のFamily</option>
+                                            <option value="洋室のSingle" {{ old('room_types.'.$index) == '洋室のSingle' ? 'selected' : '' }}>洋室のSingle</option>
+                                            <option value="洋室のDouble" {{ old('room_types.'.$index) == '洋室のDouble' ? 'selected' : '' }}>洋室のDouble</option>
+                                            <option value="和室のFamily" {{ old('room_types.'.$index) == '和室のFamily' ? 'selected' : '' }}>和室のFamily</option>
+                                            <option value="和室のSingle" {{ old('room_types.'.$index) == '和室のSingle' ? 'selected' : '' }}>和室のSingle</option>
+                                            <option value="和室のDouble" {{ old('room_types.'.$index) == '和室のDouble' ? 'selected' : '' }}>和室のDouble</option>
                                         </select>
                                         <span class="input-group-text">予約枠</span>
-                                        <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" required min="1">
+                                        <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" value="{{ old('room_counts.'.$index) }}" required min="1">
                                         <button type="button" class="btn btn-danger remove-room-type">削除</button>
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
                             <button type="button" class="btn btn-secondary mt-2" id="add-room-type">部屋タイプを追加</button>
                         </div>
@@ -105,7 +106,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('#image').change(function(e) {
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.onload = function(e) {
                 $('#showImage').attr('src', e.target.result);
             }
@@ -113,7 +114,7 @@
         });
 
         $('#add-room-type').click(function() {
-            var newEntry = $('.room-type-entry:first').clone();
+            let newEntry = $('.room-type-entry:first').clone();
             newEntry.find('input').val('');
             newEntry.find('select').val('');
             $('#room-types-container').append(newEntry);

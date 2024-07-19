@@ -21,8 +21,13 @@ class Room extends Model
         return $this->hasMany(ReservationDetail::class);
     }
 
-    public function plan()
+    public function plans()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsToMany(Plan::class);
+    }
+
+    public function roomType()
+    {
+        return $this->belongsTo(RoomType::class);
     }
 }

@@ -17,14 +17,18 @@ class PlanStoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MBに制限
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'room_type' => [
+            'price' => 'required|numeric|min:0',
+            'room_types' => 'required|array|min:1',
+            'room_types.*' => [
                 'required',
-                Rule::exists('room_types', 'id') // room_typesテーブルのidカラムに存在することを確認
+                'string',
+                Rule::in(['洋室のFamily', '洋室のSingle', '洋室のDouble', '和室のFamily', '和室のSingle', '和室のDouble'])
             ],
-            'room_count' => 'required|integer|min:1',
+            'room_counts' => 'required|array|min:1',
+            'room_counts.*' => 'required|integer|min:1',
         ];
     }
 
@@ -42,11 +46,20 @@ class PlanStoreRequest extends FormRequest
             'end_date.required' => '終了日は必須です。',
             'end_date.date' => '有効な日付を入力してください。',
             'end_date.after_or_equal' => '終了日は開始日以降の日付を選択してください。',
-            'room_type.required' => '部屋タイプを選択してください。',
-            'room_type.exists' => '選択された部屋タイプは無効です。',
-            'room_count.required' => '予約部屋数を入力してください。',
-            'room_count.integer' => '予約部屋数は整数で入力してください。',
-            'room_count.min' => '予約部屋数は1以上である必要があります。',
+            'price.required' => '価格は必須です。',
+            'price.numeric' => '価格は数値で入力してください。',
+            'price.min' => '価格は0以上である必要があります。',
+            'room_types.required' => '少なくとも1つの部屋タイプを選択してください。',
+            'room_types.array' => '部屋タイプは配列形式で送信してください。',
+            'room_types.min' => '少なくとも1つの部屋タイプを選択してください。',
+            'room_counts.required' => '少なくとも1つの予約枠を入力してください。',
+            'room_counts.array' => '予約枠は配列形式で送信してください。',
+            'room_counts.min' => '少なくとも1つの予約枠を入力してください。',
+            'room_types.*.required' => '部屋タイプを選択してください。',
+            'room_types.*.in' => '選択された部屋タイプは無効です。',
+            'room_counts.*.required' => '予約部屋数を入力してください。',
+            'room_counts.*.integer' => '予約部屋数は整数で入力してください。',
+            'room_counts.*.min' => '予約部屋数は1以上である必要があります。',
         ];
     }
 }

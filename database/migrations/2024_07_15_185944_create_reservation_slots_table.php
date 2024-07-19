@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
             $table->foreignId('room_type_id')->constrained()->cascadeOnDelete();
             $table->date('date');
-            $table->decimal('price', 8, 2);
             $table->integer('total_rooms');  // プラン作成時に設定したroom_count
             $table->integer('booked_rooms')->default(0);  // 予約された部屋数
             $table->enum('status', ['available', 'few', 'unavailable'])->default('available');

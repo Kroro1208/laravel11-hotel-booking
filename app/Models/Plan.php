@@ -9,7 +9,7 @@ class Plan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'image', 'start_date', 'end_date', 'is_reserved'];
+    protected $fillable = ['title', 'description', 'image', 'price', 'start_date', 'end_date', 'is_reserved'];
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
@@ -28,7 +28,7 @@ class Plan extends Model
 
     public function rooms()
     {
-        return $this->hasMany(Room::class);
+        return $this->belongsToMany(Room::class);
     }
 
     public function updateReservationStatus()

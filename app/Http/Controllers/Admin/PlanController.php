@@ -11,17 +11,18 @@ use App\Models\ReservationSlot;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PlanController extends Controller
 {
     public function index(): View
     {
-        $plans = Plan::with(['rooms.roomType', 'reservations'])
+        $plans = Plan::with(['planRooms.roomType', 'reservations'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('plans.index', [
+        return view('backend.plan.index', [
             'plans' => $plans
         ]);
     }
@@ -33,58 +34,94 @@ class PlanController extends Controller
 
     public function store(PlanStoreRequest $request)
     {
+        DB::beginTransaction();
+
         try {
-            DB::transaction(function () use ($request) {
-                // Planの保存
-                $plan = new Plan();
-                $plan->title = $request->title;
-                $plan->price = $request->price;
-                $plan->description = $request->description;
-                $plan->start_date = $request->start_date;
-                $plan->end_date = $request->end_date;
+            Log::info('Attempting to create a new plan', $request->all());
 
-                // 画像の保存
-                if ($request->hasFile('image')) {
-                    $imagePath = $request->file('image')->store('plan_images', 'public');
-                    $plan->image = $imagePath;
+            $plan = Plan::create([
+                'image' => $request->file('image')->store('plan_images', 'public'),
+                'title' => $request->title,
+                'description' => $request->description,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'price' => $request->price,
+                'is_reserved' => false,
+            ]);
+
+            Log::info('Plan created', ['plan_id' => $plan->id]);
+
+            foreach ($request->room_types as $index => $roomTypeName) {
+                $roomType = RoomType::firstOrCreate(
+                    ['name' => $roomTypeName],
+                    ['description' => '']
+                );
+
+                Log::info('Room type processed', ['room_type' => $roomTypeName, 'room_type_id' => $roomType->id]);
+
+                PlanRoom::create([
+                    'plan_id' => $plan->id,
+                    'room_type_id' => $roomType->id,
+                    'room_count' => $request->room_counts[$index],
+                ]);
+
+                Log::info('PlanRoom created', ['plan_id' => $plan->id, 'room_type_id' => $roomType->id, 'room_count' => $request->room_counts[$index]]);
+
+                $startDate = Carbon::parse($request->start_date);
+                $endDate = Carbon::parse($request->end_date);
+
+                while ($startDate <= $endDate) {
+                    ReservationSlot::create([
+                        'plan_id' => $plan->id,
+                        'room_type_id' => $roomType->id,
+                        'date' => $startDate,
+                        'total_rooms' => $request->room_counts[$index],
+                        'booked_rooms' => 0,
+                        'status' => 'available',
+                    ]);
+
+                    $startDate->addDay();
                 }
-                $plan->save();
 
-                // PlanRoomとReservationSlotの作成
-                foreach ($request->room_types as $index => $roomType) {
-                    $roomCount = $request->room_counts[$index];
+                Log::info('ReservationSlots created for room type', ['room_type' => $roomTypeName]);
+            }
 
-                    // PlanRoomの作成
-                    $planRoom = new PlanRoom();
-                    $planRoom->plan_id = $plan->id;
-                    $planRoom->room_type_id = $roomType;
-                    $planRoom->room_count = $roomCount;
-                    $planRoom->save();
+            DB::commit();
+            Log::info('Plan creation completed successfully');
 
-                    // ReservationSlotの作成
-                    $currentDate = Carbon::parse($plan->start_date);
-                    $endDate = Carbon::parse($plan->end_date);
-
-                    while ($currentDate <= $endDate) {
-                        $reservationSlot = new ReservationSlot();
-                        $reservationSlot->plan_id = $plan->id;
-                        $reservationSlot->room_type_id = $roomType;
-                        $reservationSlot->date = $currentDate->toDateString();
-                        $reservationSlot->price = $plan->price; // 基本価格を使用
-                        $reservationSlot->total_rooms = $roomCount;
-                        $reservationSlot->booked_rooms = 0;
-                        $reservationSlot->status = 'available';
-                        $reservationSlot->save();
-
-                        $currentDate->addDay();
-                    }
-                }
-            });
-
-            return redirect()->route('plan.index')->with('success', 'プランが正常に作成されました。');
+            return to_route('plan.index')->with('success', 'プランが正常に作成されました。');
         } catch (\Exception $e) {
-            return back()->with('error', 'プランの作成中にエラーが発生しました: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Error occurred while creating plan', ['error' => $e->getMessage()]);
+            return back()->withInput()->with('error', 'プランの作成中にエラーが発生しました: ' . $e->getMessage());
         }
+    }
+    public function updateReservationStatus($planId)
+    {
+        $plan = Plan::findOrFail($planId);
+        $reservationSlots = ReservationSlot::where('plan_id', $planId)->get();
+
+        $allUnavailable = true;
+
+        foreach ($reservationSlots as $slot) {
+            if ($slot->total_rooms == $slot->booked_rooms) {
+                $slot->status = 'unavailable';
+            } elseif ($slot->total_rooms - $slot->booked_rooms <= 3) {
+                $slot->status = 'few';
+                $allUnavailable = false;
+            } else {
+                $slot->status = 'available';
+                $allUnavailable = false;
+            }
+            $slot->save();
+        }
+
+        if ($allUnavailable) {
+            $plan->is_reserved = true;
+            $plan->save();
+        }
+
+        return back()->with('success', '予約状況が更新されました。');
     }
 
 
