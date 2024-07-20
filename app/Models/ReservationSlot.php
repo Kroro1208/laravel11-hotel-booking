@@ -14,10 +14,14 @@ class ReservationSlot extends Model
         'plan_id',
         'room_type_id',
         'date',
-        'price',
         'total_rooms',
         'booked_rooms',
         'status',
+    ];
+    protected $casts = [
+        'date' => 'date',
+        'total_rooms' => 'integer',
+        'booked_rooms' => 'integer',
     ];
 
     // 状態の定数を定義
@@ -32,6 +36,14 @@ class ReservationSlot extends Model
             self::STATUS_FEW => '△',
             self::STATUS_UNAVAILABLE => '×',
         ];
+    }
+
+    public function getAvailableRoomsForDate($date)
+    {
+        if ($date >= $this->date && $date <= $this->plan->end_date) {
+            return $this->total_rooms - $this->booked_rooms;
+        }
+        return 0;
     }
 
     public function updateStatus()

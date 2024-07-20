@@ -17,17 +17,13 @@ class PlanStoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'price' => 'required|numeric|min:0',
-            'room_types' => 'required|array|min:1',
-            'room_types.*' => [
-                'required',
-                'string',
-                Rule::in(['洋室のFamily', '洋室のSingle', '洋室のDouble', '和室のFamily', '和室のSingle', '和室のDouble'])
-            ],
-            'room_counts' => 'required|array|min:1',
+            'image' => 'required|image',
+            'room_types' => 'required|array',
+            'room_types.*' => 'required|exists:room_types,id',
+            'room_counts' => 'required|array',
             'room_counts.*' => 'required|integer|min:1',
         ];
     }

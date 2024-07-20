@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
+use App\Http\Controllers\Admin\ReservationSlotController;
 use App\Http\Controllers\User\PlanController as UserPlanController;
 use App\Http\Controllers\UserController;
 
@@ -46,6 +47,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/plan/{plan}/edit', [AdminPlanController::class, 'edit'])->name('plan.edit');
     Route::patch('/plan/{plan}', [AdminPlanController::class, 'update'])->name('plan.update');
     Route::delete('/plan/{plan}', [AdminPlanController::class, 'destroy'])->name('plan.destroy');
+    Route::get('/plans/{plan}/availability', [AdminPlanController::class, 'getAvailability'])->name('plan.availability');
+
+    Route::prefix('reservationSlot')->name('reservationSlot.')->group(function () {
+        Route::get('/{plan}', [ReservationSlotController::class, 'show'])->name('show');
+        Route::post('/store', [ReservationSlotController::class, 'store'])->name('store');
+        Route::get('/{plan}/edit', [ReservationSlotController::class, 'edit'])->name('edit');
+        Route::patch('/{plan}', [ReservationSlotController::class, 'update'])->name('update');
+    });
 });
 
 Route::get('/admin/login', [AdminController::class, 'AdminLogin'])->name('admin.login');

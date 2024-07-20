@@ -65,28 +65,21 @@
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">部屋タイプと予約枠</label>
-                                {{-- ここからクローンする --}}
                                 <div id="room-types-container">
-                                    @foreach(old('room_types', [1]) as $index => $roomType)
                                     <div class="room-type-entry mb-3">
                                         <div class="input-group">
                                             <span class="input-group-text">部屋タイプ</span>
                                             <select name="room_types[]" class="form-select @error('room_types.*') is-invalid @enderror" required>
                                                 <option value="">選択してください</option>
-                                                <option value="洋室のFamily" {{ old('room_types.'.$index) == '洋室のFamily' ? 'selected' : '' }}>洋室のFamily</option>
-                                                <option value="洋室のSingle" {{ old('room_types.'.$index) == '洋室のSingle' ? 'selected' : '' }}>洋室のSingle</option>
-                                                <option value="洋室のDouble" {{ old('room_types.'.$index) == '洋室のDouble' ? 'selected' : '' }}>洋室のDouble</option>
-                                                <option value="和室のFamily" {{ old('room_types.'.$index) == '和室のFamily' ? 'selected' : '' }}>和室のFamily</option>
-                                                <option value="和室のSingle" {{ old('room_types.'.$index) == '和室のSingle' ? 'selected' : '' }}>和室のSingle</option>
-                                                <option value="和室のDouble" {{ old('room_types.'.$index) == '和室のDouble' ? 'selected' : '' }}>和室のDouble</option>
+                                                @foreach($roomTypes as $type)
+                                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                                @endforeach
                                             </select>
                                             <span class="input-group-text">予約枠</span>
-                                            <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" value="{{ old('room_counts.'.$index) }}" required min="1">
+                                            <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" required min="1">
                                             <button type="button" class="btn btn-danger remove-room-type">削除</button>
-                                            </div>
                                         </div>
                                     </div>
-                                    @endforeach
                                 </div>
                                 <button type="button" class="btn btn-secondary mt-2" id="add-room-type">部屋タイプを追加</button>
                             </div>
@@ -119,14 +112,15 @@
             function initRoomTypeManagement() {
                 const addButton = document.getElementById('add-room-type');
                 const container = document.getElementById('room-types-container');
-                // if (!addButton || !container) return console.error('buttonもしくはcontainerが見つかりません');
+                if (!addButton || !container) return console.error('buttonもしくはcontainerが見つかりません');
 
                 addButton.addEventListener('click', () => {
                     const template = document.querySelector('.room-type-entry');
-                    // if (!template) return console.error('classが見つかりません');
+                    if (!template) return console.error('classが見つかりません');
 
                     const newEntry = template.cloneNode(true);
-                    newEntry.id = 'room-type-' + Date.now();
+                    newEntry.querySelector('select').selectedIndex = 0;
+                    newEntry.querySelector('input[type="number"]').value = '';
                     container.appendChild(newEntry);
                 });
 
@@ -146,6 +140,6 @@
             document.readyState === 'loading'
                 ? document.addEventListener('DOMContentLoaded', init)
                 : init();
-            })();
+        })();
     </script>
 @endsection

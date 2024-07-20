@@ -48,14 +48,14 @@
                             @endforeach
                         </ul>
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="{{ route('plan.show', $plan->id) }}" class="btn btn-sm btn-outline-secondary">
+                            <a href="{{ route('plan.show', $plan) }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-eye"></i> 詳細
                             </a>
                             <div>
-                                <a href="{{ route('plan.edit', $plan->id) }}" class="btn btn-sm btn-outline-primary">
+                                <a href="{{ route('plan.edit', $plan) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-pencil"></i> 編集
                                 </a>
-                                <form method="POST" action="{{ route('plan.destroy', $plan->id) }}" class="d-inline delete-form">
+                                <form method="POST" action="{{ route('plan.destroy', $plan) }}" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">

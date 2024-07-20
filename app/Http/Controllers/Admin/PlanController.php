@@ -8,7 +8,6 @@ use App\Models\Plan;
 use App\Models\RoomType;
 use App\Models\PlanRoom;
 use App\Models\ReservationSlot;
-use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +28,8 @@ class PlanController extends Controller
 
     public function create(): View
     {
-        return view('backend.plan.create');
+        $roomTypes = RoomType::all();
+        return view('backend.plan.create', compact('roomTypes'));
     }
 
     public function store(PlanStoreRequest $request)
@@ -51,13 +51,10 @@ class PlanController extends Controller
 
             Log::info('Plan created', ['plan_id' => $plan->id]);
 
-            foreach ($request->room_types as $index => $roomTypeName) {
-                $roomType = RoomType::firstOrCreate(
-                    ['name' => $roomTypeName],
-                    ['description' => '']
-                );
+            foreach ($request->room_types as $index => $roomTypeId) {
+                $roomType = RoomType::findOrFail($roomTypeId);
 
-                Log::info('Room type processed', ['room_type' => $roomTypeName, 'room_type_id' => $roomType->id]);
+                Log::info('Room type processed', ['room_type' => $roomType->name, 'room_type_id' => $roomType->id]);
 
                 PlanRoom::create([
                     'plan_id' => $plan->id,
@@ -67,16 +64,24 @@ class PlanController extends Controller
 
                 Log::info('PlanRoom created', ['plan_id' => $plan->id, 'room_type_id' => $roomType->id, 'room_count' => $request->room_counts[$index]]);
 
-                ReservationSlot::create([
-                    'plan_id' => $plan->id,
-                    'room_type_id' => $roomType->id,
-                    'date' => $request->start_date,
-                    'total_rooms' => $request->room_counts[$index],
-                    'booked_rooms' => 0,
-                    'status' => 'available',
-                ]);
+                // プランの開始日から終了日まで、各日に対して予約枠を作成
+                $currentDate = new \DateTime($request->start_date);
+                $endDate = new \DateTime($request->end_date);
 
-                Log::info('ReservationSlots created for room type', ['room_type' => $roomTypeName]);
+                while ($currentDate <= $endDate) {
+                    ReservationSlot::create([
+                        'plan_id' => $plan->id,
+                        'room_type_id' => $roomType->id,
+                        'date' => $currentDate->format('Y-m-d'),
+                        'total_rooms' => $request->room_counts[$index],
+                        'booked_rooms' => 0,
+                        'status' => 'available',
+                    ]);
+
+                    $currentDate->modify('+1 day');
+                }
+
+                Log::info('ReservationSlots created for room type', ['room_type' => $roomType->name]);
             }
 
             DB::commit();
@@ -88,6 +93,18 @@ class PlanController extends Controller
             Log::error('Error occurred while creating plan', ['error' => $e->getMessage()]);
             return back()->withInput()->with('error', 'プランの作成中にエラーが発生しました: ' . $e->getMessage());
         }
+    }
+
+    public function show(Plan $plan)
+    {
+        // プランに関連する予約枠情報を取得
+        $reservationSlots = $plan->reservationSlots()
+            ->with('roomType')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('room_type_id');
+
+        return view('admin.plans.show', compact('plan', 'reservationSlots'));
     }
     public function updateReservationStatus($planId)
     {
@@ -160,5 +177,21 @@ class PlanController extends Controller
     {
         $plan->delete();
         return to_route('plan.index')->with('success', 'プランの削除に成功しました');
+    }
+
+    public function getAvailability($planId)
+    {
+        $plan = Plan::findOrFail($planId);
+        $availability = $plan->getAvailabilityForDateRange($plan->start_date, $plan->end_date);
+
+        $formattedAvailability = [];
+        foreach ($availability as $date => $dayAvailability) {
+            $formattedAvailability[$date] = [
+                'available' => array_sum($dayAvailability) > 0,
+                'roomTypes' => $dayAvailability
+            ];
+        }
+
+        return response()->json($formattedAvailability);
     }
 }
