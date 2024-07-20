@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserProfileUpdateRequest;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,13 @@ class UserController extends Controller
 {
     public function index(): View
     {
-        return view('frontend.index');
+        $plans = Plan::with(['planRooms.roomType', 'reservations'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('frontend.index', [
+            'plans' => $plans
+        ]);
     }
 
     public function userProfile()
@@ -84,7 +91,7 @@ class UserController extends Controller
             'new_password' => 'required|confirmed',
         ]);
 
-        if (! Hash::check($request->old_password, auth::user()->password)) {
+        if (!Hash::check($request->old_password, auth::user()->password)) {
             $notification = [
                 'message' => 'パスワードが一致しません',
                 'alert-type' => 'error',

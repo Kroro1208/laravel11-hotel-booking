@@ -62,12 +62,8 @@
     <!-- Banner Form Area End -->
 
     <!-- Room Area -->
-    @include('frontend.home.room-area')
+    @include('frontend.home.room-plan', ['plans' => $plans])
     <!-- Room Area End -->
-
-    <!-- Rook Area Two-->
-    @include('frontend.home.room-area2')
-    <!-- Rook Area Two End -->
 
     <!-- Services Area Three -->
     @include('frontend.home.services')

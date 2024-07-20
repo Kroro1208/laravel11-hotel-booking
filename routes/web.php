@@ -26,7 +26,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/user/password/update', [UserController::class, 'userPasswordUpdate'])->name('user.password.update');
 
     // ユーザー用プラン
-    Route::get('user/plan/index', [UserPlanController::class, 'index'])->name('plan.index');
     Route::get('user/plan/{plan}', [UserPlanController::class, 'show'])->name('plan.show');
 });
 
