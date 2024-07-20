@@ -24,12 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/logout', [UserController::class, 'userLogout'])->name('user.logout');
     Route::get('/user/password/edit', [UserController::class, 'userPasswordEdit'])->name('user.password.edit');
     Route::patch('/user/password/update', [UserController::class, 'userPasswordUpdate'])->name('user.password.update');
-
-    // ユーザー用プラン
-    Route::get('user/plan/{plan}', [UserPlanController::class, 'show'])->name('plan.show');
 });
+// ユーザー用プラン
+Route::get('user/plan/{plan}', [UserPlanController::class, 'show'])->name('user.plan.show');
 
-require __DIR__ . '/auth.php';
 
 // 管理者用
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -51,3 +49,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::get('/admin/login', [AdminController::class, 'AdminLogin'])->name('admin.login');
+
+
+require __DIR__ . '/auth.php';

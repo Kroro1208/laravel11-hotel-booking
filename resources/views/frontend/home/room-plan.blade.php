@@ -36,7 +36,7 @@
                             @endforeach
                         </ul>
                         <div class="d-flex justify-content-center align-items-center">
-                            <a href="{{ route('plan.show', $plan->id) }}" class="btn btn-sm btn-outline-secondary w-100">
+                            <a href="{{ route('user.plan.show', $plan) }}" class="btn btn-sm btn-outline-secondary w-100">
                                 <i class="bi bi-eye"></i> 詳細
                             </a>
                         </div>

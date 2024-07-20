@@ -10,7 +10,7 @@
     <div class="main-nav">
         <div class="container">
             <nav class="navbar navbar-expand-md navbar-light ">
-                <a class="navbar-brand" href="index.html">
+                <a class="navbar-brand" href="{{ route('user.index') }}">
                     <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one" alt="Logo" width="80px" height="80px">
                     <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-two" alt="Logo" width="80px" height="80px">
                 </a>
