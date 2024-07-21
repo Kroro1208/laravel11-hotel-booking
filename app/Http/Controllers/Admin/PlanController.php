@@ -104,7 +104,7 @@ class PlanController extends Controller
             ->get()
             ->groupBy('room_type_id');
 
-        return view('admin.plans.show', compact('plan', 'reservationSlots'));
+        return view('backend.plan.show', compact('plan', 'reservationSlots'));
     }
     public function updateReservationStatus($planId)
     {

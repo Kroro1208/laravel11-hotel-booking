@@ -5,72 +5,34 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\ReservationSlot;
-use App\Models\RoomType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ReservationSlotController extends Controller
 {
-    public function create()
+
+
+    public function update(Request $request, Plan $plan): RedirectResponse
     {
-        $roomTypes = RoomType::all();
-        return view('admin.reservation_slots.create', compact('roomTypes'));
-    }
-
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'room_types' => 'required|array',
-            'room_counts' => 'required|array',
-        ]);
-
-        $startDate = new \DateTime($request->start_date);
-        $endDate = new \DateTime($request->end_date);
-
-        while ($startDate <= $endDate) {
-            foreach ($request->room_types as $index => $roomTypeId) {
-                ReservationSlot::create([
-                    'date' => $startDate->format('Y-m-d'),
-                    'room_type_id' => $roomTypeId,
-                    'total_rooms' => $request->room_counts[$index],
-                    'booked_rooms' => 0,
-                    'status' => 'available',
-                ]);
-            }
-            $startDate->modify('+1 day');
-        }
-
-        return to_route('admin.reservation_slots.index')->with('success', '予約枠を作成しました。');
-    }
-
-    public function edit(Plan $plan)
-    {
-        $reservationSlots = $plan->reservationSlots()->orderBy('date')->get();
-        return view('admin.reservation_slots.edit', compact('plan', 'reservationSlots'));
-    }
-
-    public function update(Request $request, Plan $plan)
-    {
-        $request->validate([
+        $data = $request->validate([
             'slots' => 'required|array',
-            'slots.*.date' => 'required|date',
-            'slots.*.room_type_id' => 'required|exists:room_types,id',
-            'slots.*.total_rooms' => 'required|integer|min:0',
+            'update_slot' => 'required|integer|exists:reservation_slots,id'
         ]);
 
-        foreach ($request->slots as $slotData) {
-            ReservationSlot::updateOrCreate(
-                [
-                    'plan_id' => $plan->id,
-                    'date' => $slotData['date'],
-                    'room_type_id' => $slotData['room_type_id']
-                ],
-                ['total_rooms' => $slotData['total_rooms']]
-            );
+        $slotId = $data['update_slot'];
+        $slotData = $data['slots'][$slotId];
+
+        $slot = ReservationSlot::findOrFail($slotId);
+
+        if ($slotData['total_rooms'] < $slot->booked_rooms) {
+            return redirect()->back()->with('error', '部屋数が足りません。');
         }
 
-        return redirect()->route('plans.show', $plan)->with('success', '予約枠が更新されました。');
+        $slot->update([
+            'total_rooms' => $slotData['total_rooms']
+        ]);
+
+        return redirect()->route('plan.show', $plan)->with('success', '予約枠が更新されました');
     }
 }

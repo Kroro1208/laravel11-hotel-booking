@@ -24,6 +24,16 @@ class ReservationSlot extends Model
         'booked_rooms' => 'integer',
     ];
 
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function roomType()
+    {
+        return $this->belongsTo(RoomType::class);
+    }
+
     // 状態の定数を定義
     public const STATUS_AVAILABLE = 'available';
     public const STATUS_FEW = 'few';
@@ -110,15 +120,5 @@ class ReservationSlot extends Model
         }
 
         return $planRoom->room_count - $this->booked_rooms;
-    }
-
-    public function plan()
-    {
-        return $this->belongsTo(Plan::class);
-    }
-
-    public function roomType()
-    {
-        return $this->belongsTo(RoomType::class);
     }
 }

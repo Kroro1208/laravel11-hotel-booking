@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -48,21 +49,26 @@ class Plan extends Model
         $this->save();
     }
 
-    public function getAvailabilityForDateRange($startDate, $endDate): array
+    public function dateRange(): CarbonPeriod
     {
-        $startDate = Carbon::parse($startDate);
-        $endDate = Carbon::parse($endDate);
+        return CarbonPeriod::create($this->start_date, $this->end_date);
+    }
+
+    public function getAvailabilityForDateRange($startDate = null, $endDate = null): array
+    {
+        $dateRange = $startDate && $endDate
+            ? CarbonPeriod::create($startDate, $endDate)
+            : $this->dateRange();
 
         $reservationSlots = $this->reservationSlots()
             ->with('roomType')
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereBetween('date', [$dateRange->getStartDate(), $dateRange->getEndDate()])
             ->get()
             ->groupBy(['date', 'room_type_id']);
 
         $availability = [];
-        $currentDate = $startDate->copy();
-        while ($currentDate <= $endDate) {
-            $dateString = $currentDate->format('Y-m-d');
+        foreach ($dateRange as $date) {
+            $dateString = $date->format('Y-m-d');
             $dayAvailability = [];
 
             foreach ($this->planRooms as $planRoom) {
@@ -77,7 +83,6 @@ class Plan extends Model
             }
 
             $availability[$dateString] = $dayAvailability;
-            $currentDate->addDay();
         }
 
         return $availability;

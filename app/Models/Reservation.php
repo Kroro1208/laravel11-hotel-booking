@@ -21,11 +21,6 @@ class Reservation extends Model
         return $this->belongsTo(Plan::class);
     }
 
-    public function reservationDetails()
-    {
-        return $this->hasMany(ReservationDetail::class);
-    }
-
     public function payments()
     {
         return $this->hasMany(Payment::class);
