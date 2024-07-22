@@ -3,7 +3,6 @@
 @section('content')
 <div class="container py-4">
     <h2 class="mb-4">{{ $plan->title }}</h2>
-    
     @include('frontend.plan.partials.plan_details')
     @include('frontend.plan.partials.room_type')
     @include('frontend.plan.partials.calendar')

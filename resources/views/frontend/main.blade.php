@@ -61,6 +61,7 @@
         <!-- End Navbar Area -->
 
         @yield('content')
+        @stack('scripts')
 
         <!-- Footer Area -->
         @include('frontend.content.footer')

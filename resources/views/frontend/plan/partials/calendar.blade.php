@@ -1,4 +1,4 @@
-<div id="availability-calendar">
+<div>
     @foreach($months as $year => $yearMonths)
         @foreach($yearMonths as $month)
             <h4 class="mt-4">{{ $year }}年{{ $month }}月</h4>
