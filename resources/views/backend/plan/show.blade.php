@@ -24,7 +24,7 @@
         </div>
     @endif
 
-    <form action="{{ route('reservationSlot.update', $plan->id) }}" method="POST">
+    <form action="#" method="POST">
         @csrf
         @method('PATCH')
         @foreach($reservationSlots as $roomTypeId => $slots)

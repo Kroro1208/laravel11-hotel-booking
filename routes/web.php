@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\PlanController as AdminPlanController;
 use App\Http\Controllers\Admin\ReservationSlotController;
 use App\Http\Controllers\User\PlanController as UserPlanController;
+use App\Http\Controllers\User\ReservationController;
 use App\Http\Controllers\UserController;
 
 
@@ -13,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::get('/', [UserController::class, 'index'])->name('user.index');
 
 Route::get('/dashboard', function () {
     return view('frontend.dashboard.user_dashboard');
@@ -27,7 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/user/password/update', [UserController::class, 'userPasswordUpdate'])->name('user.password.update');
 });
 // ユーザー用プラン
+Route::get('/', [UserController::class, 'index'])->name('user.index');
 Route::get('user/plan/{plan}', [UserPlanController::class, 'show'])->name('user.plan.show');
+
+Route::get('user/plan/reservation', [ReservationController::class, 'create'])->name('user.reservation.create');
+
 
 
 // 管理者用

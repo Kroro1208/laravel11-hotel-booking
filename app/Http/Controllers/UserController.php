@@ -13,6 +13,7 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    // ログインしていないユーザーにも見える
     public function index(): View
     {
         $plans = Plan::with(['planRooms.roomType', 'reservations'])

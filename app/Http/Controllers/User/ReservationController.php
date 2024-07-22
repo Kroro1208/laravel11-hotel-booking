@@ -1,15 +1,73 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
+use App\Models\Plan;
 use App\Models\Reservation;
 use App\Models\ReservationSlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+
 class ReservationController extends Controller
 {
-    // ... 他のメソッド ...
+    public function create(Request $request)
+    {
+        $plan = Plan::findOrFail($request->plan);
+        $date = $request->date;
+        $roomTypeId = $request->room_type;
+
+        $slot = ReservationSlot::where('plan_id', $plan->id)
+            ->where('room_type_id', $roomTypeId)
+            ->where('date', $date)
+            ->firstOrFail();
+
+        return view('frontend.plan.reservation_form', compact('plan', 'slot'));
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+            'reservation_slot_id' => 'required|exists:reservation_slots,id',
+            'guest_name' => 'required|string|max:255',
+            'guest_email' => 'required|email',
+            'number_of_guests' => 'required|integer|min:1',
+            // その他の必要なバリデーションルール
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $slot = ReservationSlot::findOrFail($validatedData['reservation_slot_id']);
+
+            if ($slot->getAvailableRooms() < 1) {
+                throw new \Exception('選択された日付の部屋は既に満室です。');
+            }
+
+            $reservation = Reservation::create([
+                'user_id' => auth()->id(),
+                'plan_id' => $validatedData['plan_id'],
+                'reservation_slot_id' => $validatedData['reservation_slot_id'],
+                'guest_name' => $validatedData['guest_name'],
+                'guest_email' => $validatedData['guest_email'],
+                'number_of_guests' => $validatedData['number_of_guests'],
+                'status' => 'confirmed',
+                // その他の必要なフィールド
+            ]);
+
+            $slot->book();  // ReservationSlotモデルのbookメソッドを呼び出し
+
+            DB::commit();
+
+            return redirect()->route('user.reservations.show', $reservation)
+                ->with('success', '予約が完了しました。');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
 
     public function cancel(Reservation $reservation)
     {
