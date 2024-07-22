@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PlanStoreRequest;
+use App\Http\Requests\PlanUpdateRequest;
 use App\Models\Plan;
 use App\Models\RoomType;
 use App\Models\PlanRoom;
 use App\Models\ReservationSlot;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class PlanController extends Controller
@@ -35,10 +36,7 @@ class PlanController extends Controller
     public function store(PlanStoreRequest $request)
     {
         DB::beginTransaction();
-
         try {
-            Log::info('Attempting to create a new plan', $request->all());
-
             $plan = Plan::create([
                 'image' => $request->file('image')->store('plan_images', 'public'),
                 'title' => $request->title,
@@ -49,21 +47,13 @@ class PlanController extends Controller
                 'is_reserved' => false,
             ]);
 
-            Log::info('Plan created', ['plan_id' => $plan->id]);
-
             foreach ($request->room_types as $index => $roomTypeId) {
                 $roomType = RoomType::findOrFail($roomTypeId);
-
-                Log::info('Room type processed', ['room_type' => $roomType->name, 'room_type_id' => $roomType->id]);
-
                 PlanRoom::create([
                     'plan_id' => $plan->id,
                     'room_type_id' => $roomType->id,
                     'room_count' => $request->room_counts[$index],
                 ]);
-
-                Log::info('PlanRoom created', ['plan_id' => $plan->id, 'room_type_id' => $roomType->id, 'room_count' => $request->room_counts[$index]]);
-
                 // プランの開始日から終了日まで、各日に対して予約枠を作成
                 $currentDate = new \DateTime($request->start_date);
                 $endDate = new \DateTime($request->end_date);
@@ -77,20 +67,13 @@ class PlanController extends Controller
                         'booked_rooms' => 0,
                         'status' => 'available',
                     ]);
-
                     $currentDate->modify('+1 day');
                 }
-
-                Log::info('ReservationSlots created for room type', ['room_type' => $roomType->name]);
             }
-
             DB::commit();
-            Log::info('Plan creation completed successfully');
-
             return to_route('plan.index')->with('success', 'プランが正常に作成されました。');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error occurred while creating plan', ['error' => $e->getMessage()]);
             return back()->withInput()->with('error', 'プランの作成中にエラーが発生しました: ' . $e->getMessage());
         }
     }
@@ -145,7 +128,7 @@ class PlanController extends Controller
         ]);
     }
 
-    public function update(PlanStoreRequest $request, Plan $plan): RedirectResponse
+    public function update(PlanUpdateRequest $request, Plan $plan): RedirectResponse
     {
         try {
             DB::transaction(function () use ($request, $plan) {
@@ -154,22 +137,58 @@ class PlanController extends Controller
 
                 // 画像を更新
                 if ($request->hasFile('image')) {
+                    // 古い画像を削除
+                    if ($plan->image) {
+                        Storage::disk('public')->delete($plan->image);
+                    }
                     $imagePath = $request->file('image')->store('plans', 'public');
                     $plan->image = $imagePath;
                 }
 
                 $plan->save();
 
-                // planRoomを更新または作成
-                $planRoom = $plan->planRooms()->firstOrNew([]);
-                $planRoom->room_type_id = $request->input('room_type');
-                $planRoom->room_count = $request->input('room_count');
-                $planRoom->save();
+                // 既存のplanRoomsを削除
+                $plan->planRooms()->delete();
+
+                // 新しいplanRoomsを作成
+                foreach ($request->input('room_types') as $index => $roomTypeId) {
+                    $plan->planRooms()->create([
+                        'room_type_id' => $roomTypeId,
+                        'room_count' => $request->input('room_counts')[$index],
+                    ]);
+                }
+
+                // ReservationSlotsの更新（必要に応じて）
+                $this->updateReservationSlots($plan);
             });
 
             return to_route('plan.index')->with('success', 'プランの更新に成功しました');
         } catch (\Exception $e) {
-            return back()->with('error', 'プランの更新中にエラーが発生しました: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'プランの更新中にエラーが発生しました: ' . $e->getMessage());
+        }
+    }
+
+    private function updateReservationSlots(Plan $plan)
+    {
+        // 既存のReservationSlotsを削除
+        ReservationSlot::where('plan_id', $plan->id)->delete();
+
+        // 新しいReservationSlotsを作成
+        $currentDate = new \DateTime($plan->start_date);
+        $endDate = new \DateTime($plan->end_date);
+
+        while ($currentDate <= $endDate) {
+            foreach ($plan->planRooms as $planRoom) {
+                ReservationSlot::create([
+                    'plan_id' => $plan->id,
+                    'room_type_id' => $planRoom->room_type_id,
+                    'date' => $currentDate->format('Y-m-d'),
+                    'total_rooms' => $planRoom->room_count,
+                    'booked_rooms' => 0,
+                    'status' => 'available',
+                ]);
+            }
+            $currentDate->modify('+1 day');
         }
     }
 
