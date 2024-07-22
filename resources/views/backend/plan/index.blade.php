@@ -1,6 +1,15 @@
 @extends('admin.dashboard')
 
 @section('content')
+<style>
+    .plan-room-list .list-group-item {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    .plan-room-list .room-type-name {
+        font-weight: 500;
+    }
+</style>
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">ホテル予約プラン一覧</h2>
@@ -39,27 +48,27 @@
                     </ul>
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">利用可能な部屋タイプ</h6>
-                        <ul class="list-group list-group-flush mb-3">
-                            @foreach($plan->planRooms as $planRoom)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ $planRoom->roomType->name }}
-                                    <span class="badge bg-primary rounded-pill">{{ $planRoom->room_count }}室</span>
-                                </li>
-                            @endforeach
-                        </ul>
+                            <ul class="list-group list-group-flush mb-3 plan-room-list">
+                                @foreach($plan->planRooms as $planRoom)
+                                    <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
+                                        <span class="room-type-name">{{ $planRoom->roomType->name }}</span>
+                                        <span class="badge bg-primary rounded-pill fs-6">{{ $planRoom->room_count }}室</span>
+                                    </li>
+                                @endforeach
+                            </ul>
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('plan.show', $plan) }}" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-eye"></i> 詳細
+                                詳細
                             </a>
                             <div>
                                 <a href="{{ route('plan.edit', $plan) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i> 編集
+                                    編集
                                 </a>
                                 <form method="POST" action="{{ route('plan.destroy', $plan) }}" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> 削除
+                                        削除
                                     </button>
                                 </form>
                             </div>
