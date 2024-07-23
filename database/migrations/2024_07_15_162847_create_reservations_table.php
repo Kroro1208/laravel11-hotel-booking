@@ -16,6 +16,7 @@ return new class() extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
             $table->string('booking_number')->unique(); // 予約番号
+            $table->integer('number_of_guests');
             $table->date('checkIn_date');
             $table->date('checkOut_date');
             $table->decimal('total_price', 10, 2);

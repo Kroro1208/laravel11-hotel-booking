@@ -50,6 +50,10 @@
                         <label for="numberOfGuests" class="form-label">宿泊人数:</label>
                         <input type="number" class="form-control" id="numberOfGuests" name="number_of_guests" min="1" value="1" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">メッセージ（任意）:</label>
+                        <textarea class="form-control" id="message" name="message" rows="3"></textarea>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">

@@ -26,6 +26,7 @@ class ReservationController extends Controller
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email',
             'number_of_guests' => 'required|integer|min:1',
+            'message' => 'nullable|string|max:1000'
         ]);
 
         Log::info('Validation passed', $validatedData);
@@ -49,16 +50,22 @@ class ReservationController extends Controller
                 throw new \Exception('選択された日付の部屋数が不足しています。');
             }
 
-            $reservation = Reservation::create([
+            $reservationData = [
                 'user_id' => auth()->id(),
                 'plan_id' => $validatedData['plan_id'],
                 'booking_number' => $this->generateBookingNumber(),
                 'checkIn_date' => $date,
                 'checkOut_date' => $date->copy()->addDay(),
                 'total_price' => $plan->price * $validatedData['room_count'],
+                'number_of_guests' => $validatedData['number_of_guests'],
                 'status' => 'confirmed',
-                'message' => $request->input('message'),
-            ]);
+            ];
+
+            if (!empty($validatedData['message'])) {
+                $reservationData['message'] = $validatedData['message'];
+            }
+
+            $reservation = Reservation::create($reservationData);
 
             Log::info("Reservation created", ['reservation_id' => $reservation->id, 'booking_number' => $reservation->booking_number]);
 

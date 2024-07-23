@@ -18,6 +18,7 @@ class Reservation extends Model
         'checkIn_date',
         'checkOut_date',
         'total_price',
+        'number_of_guests',
         'status',
         'message',
     ];
