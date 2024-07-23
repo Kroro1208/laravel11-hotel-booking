@@ -44,7 +44,6 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><i class="bi bi-calendar-range"></i> <strong>期間：</strong> {{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</li>
-                        <li class="list-group-item"><i class="bi bi-door-open"></i> <strong>総空き枠：</strong> 残り{{ $plan->planRooms->sum('room_count') }}枠</li>
                     </ul>
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">利用可能な部屋タイプ</h6>
