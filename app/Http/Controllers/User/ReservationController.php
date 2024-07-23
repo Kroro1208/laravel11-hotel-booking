@@ -6,54 +6,86 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\Reservation;
 use App\Models\ReservationSlot;
+use App\Models\RoomType;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 
 class ReservationController extends Controller
 {
     public function store(Request $request)
     {
-        // todo FormRequestにかく
+        Log::info('Reservation store method called', $request->all());
+
         $validatedData = $request->validate([
             'plan_id' => 'required|exists:plans,id',
-            'reservation_slot_id' => 'required|exists:reservation_slots,id',
+            'date' => 'required|date',
+            'room_type_id' => 'required|exists:room_types,id',
+            'room_count' => 'required|integer|min:1',
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email',
             'number_of_guests' => 'required|integer|min:1',
-            // その他の必要なバリデーションルール
         ]);
+
+        Log::info('Validation passed', $validatedData);
 
         DB::beginTransaction();
 
         try {
-            $slot = ReservationSlot::findOrFail($validatedData['reservation_slot_id']);
+            $plan = Plan::findOrFail($validatedData['plan_id']);
+            $date = Carbon::parse($validatedData['date']);
 
-            if ($slot->getAvailableRooms() < 1) {
-                throw new \Exception('選択された日付の部屋は既に満室です。');
+            Log::info("Fetching reservation slot for date: {$date}");
+
+            $slot = ReservationSlot::where('plan_id', $plan->id)
+                ->where('room_type_id', $validatedData['room_type_id'])
+                ->where('date', $date)
+                ->firstOrFail();
+
+            Log::info("Reservation slot found", ['slot_id' => $slot->id, 'available_rooms' => $slot->getAvailableRooms()]);
+
+            if ($slot->getAvailableRooms() < $validatedData['room_count']) {
+                throw new \Exception('選択された日付の部屋数が不足しています。');
             }
 
             $reservation = Reservation::create([
                 'user_id' => auth()->id(),
                 'plan_id' => $validatedData['plan_id'],
-                'reservation_slot_id' => $validatedData['reservation_slot_id'],
-                'guest_name' => $validatedData['guest_name'],
-                'guest_email' => $validatedData['guest_email'],
-                'number_of_guests' => $validatedData['number_of_guests'],
+                'booking_number' => $this->generateBookingNumber(),
+                'checkIn_date' => $date,
+                'checkOut_date' => $date->copy()->addDay(),
+                'total_price' => $plan->price * $validatedData['room_count'],
                 'status' => 'confirmed',
-                // その他の必要なフィールド
+                'message' => $request->input('message'),
             ]);
 
-            $slot->book();  // ReservationSlotモデルのbookメソッドを呼び出し
+            Log::info("Reservation created", ['reservation_id' => $reservation->id, 'booking_number' => $reservation->booking_number]);
+
+            $booked = $slot->book($validatedData['room_count']);
+
+            if (!$booked) {
+                throw new \Exception('予約処理中にエラーが発生しました。');
+            }
+
+            Log::info("Slot booked successfully");
 
             DB::commit();
+
+            Log::info("Transaction committed successfully");
 
             return redirect()->route('user.reservations.show', $reservation)
                 ->with('success', '予約が完了しました。');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error("Error in reservation process", ['error' => $e->getMessage()]);
             return back()->withInput()->with('error', $e->getMessage());
         }
+    }
+
+    private function generateBookingNumber()
+    {
+        return 'BK' . strtoupper(uniqid());
     }
 
     public function cancel(Reservation $reservation)

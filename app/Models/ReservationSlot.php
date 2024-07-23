@@ -18,6 +18,7 @@ class ReservationSlot extends Model
         'booked_rooms',
         'status',
     ];
+
     protected $casts = [
         'date' => 'date',
         'total_rooms' => 'integer',
@@ -34,7 +35,6 @@ class ReservationSlot extends Model
         return $this->belongsTo(RoomType::class);
     }
 
-    // 状態の定数を定義
     public const STATUS_AVAILABLE = 'available';
     public const STATUS_FEW = 'few';
     public const STATUS_UNAVAILABLE = 'unavailable';
@@ -51,7 +51,7 @@ class ReservationSlot extends Model
     public function getAvailableRoomsForDate($date)
     {
         if ($date >= $this->date && $date <= $this->plan->end_date) {
-            return $this->total_rooms - $this->booked_rooms;
+            return $this->getAvailableRooms();
         }
         return 0;
     }
@@ -64,7 +64,7 @@ class ReservationSlot extends Model
             throw new \Exception('関連する PlanRoom が見つかりません。');
         }
 
-        $availableRooms = $planRoom->room_count - $this->booked_rooms;
+        $availableRooms = $this->getAvailableRooms();
         $availablePercentage = ($availableRooms / $planRoom->room_count) * 100;
 
         if ($availableRooms <= 0) {
@@ -77,38 +77,47 @@ class ReservationSlot extends Model
 
         $this->save();
 
-        // プランの予約状態を更新
         $this->plan->updateReservationStatus();
     }
 
     public function book($roomCount = 1)
     {
-        $planRoom = $this->plan->planRooms()->where('room_type_id', $this->room_type_id)->first();
-
-        if (!$planRoom) {
-            throw new \Exception('関連する PlanRoom が見つかりません。');
+        if ($roomCount < 1) {
+            throw new \InvalidArgumentException('予約する部屋数は1以上である必要があります。');
         }
 
-        if ($this->booked_rooms + $roomCount <= $planRoom->room_count) {
-            DB::transaction(function () use ($roomCount) {
-                $this->booked_rooms += $roomCount;
-                $this->updateStatus();
-            });
-            return true;
+        $availableRooms = $this->getAvailableRooms();
+
+        if ($availableRooms < $roomCount) {
+            throw new \Exception("予約可能な部屋数が不足しています。予約可能数: {$availableRooms}, 要求数: {$roomCount}");
         }
-        return false;
+
+        DB::transaction(function () use ($roomCount) {
+            $this->booked_rooms += $roomCount;
+            $this->save();
+            $this->updateStatus();
+        });
+
+        return true;
     }
 
     public function cancelBooking($roomCount = 1)
     {
-        if ($this->booked_rooms - $roomCount >= 0) {
-            DB::transaction(function () use ($roomCount) {
-                $this->booked_rooms -= $roomCount;
-                $this->updateStatus();
-            });
-            return true;
+        if ($roomCount < 1) {
+            throw new \InvalidArgumentException('キャンセルする部屋数は1以上である必要があります。');
         }
-        return false;
+
+        if ($this->booked_rooms < $roomCount) {
+            throw new \Exception("キャンセル可能な部屋数が不足しています。予約済数: {$this->booked_rooms}, 要求数: {$roomCount}");
+        }
+
+        DB::transaction(function () use ($roomCount) {
+            $this->booked_rooms -= $roomCount;
+            $this->save();
+            $this->updateStatus();
+        });
+
+        return true;
     }
 
     public function getAvailableRooms()

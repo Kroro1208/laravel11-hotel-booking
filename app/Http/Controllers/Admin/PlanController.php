@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\RoomType;
 use App\Models\PlanRoom;
 use App\Models\ReservationSlot;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -47,6 +48,9 @@ class PlanController extends Controller
                 'is_reserved' => false,
             ]);
 
+            $startDate = Carbon::parse($request->start_date);
+            $endDate = Carbon::parse($request->end_date);
+
             foreach ($request->room_types as $index => $roomTypeId) {
                 $roomType = RoomType::findOrFail($roomTypeId);
                 PlanRoom::create([
@@ -54,10 +58,9 @@ class PlanController extends Controller
                     'room_type_id' => $roomType->id,
                     'room_count' => $request->room_counts[$index],
                 ]);
-                // プランの開始日から終了日まで、各日に対して予約枠を作成
-                $currentDate = new \DateTime($request->start_date);
-                $endDate = new \DateTime($request->end_date);
 
+                // プランの開始日から終了日まで、各日に対して予約枠を作成
+                $currentDate = $startDate->copy();
                 while ($currentDate <= $endDate) {
                     ReservationSlot::create([
                         'plan_id' => $plan->id,
@@ -67,9 +70,10 @@ class PlanController extends Controller
                         'booked_rooms' => 0,
                         'status' => 'available',
                     ]);
-                    $currentDate->modify('+1 day');
+                    $currentDate->addDay();
                 }
             }
+
             DB::commit();
             return to_route('plan.index')->with('success', 'プランが正常に作成されました。');
         } catch (\Exception $e) {

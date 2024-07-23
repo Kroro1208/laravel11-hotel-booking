@@ -19,7 +19,7 @@
                         @foreach($calendar[$year][$month] as $week)
                             <tr>
                                 @foreach($week as $day)
-                                    @include('frontend.plan.partials.calendar_cell', ['day' => $day, 'plan' => $plan, 'reservationSlots' => $reservationSlots])
+                                   @include('frontend.plan.partials.calendar_cell', ['day' => $day, 'plan' => $plan, 'reservationSlots' => $reservationSlots])
                                 @endforeach
                             </tr>
                         @endforeach
