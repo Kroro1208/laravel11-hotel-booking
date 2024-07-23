@@ -12,22 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
-    public function create(Request $request)
-    {
-        $plan = Plan::findOrFail($request->plan);
-        $date = $request->date;
-        $roomTypeId = $request->room_type;
-
-        $slot = ReservationSlot::where('plan_id', $plan->id)
-            ->where('room_type_id', $roomTypeId)
-            ->where('date', $date)
-            ->firstOrFail();
-
-        return view('frontend.plan.reservation_form', compact('plan', 'slot'));
-    }
-
     public function store(Request $request)
     {
+        // todo FormRequestにかく
         $validatedData = $request->validate([
             'plan_id' => 'required|exists:plans,id',
             'reservation_slot_id' => 'required|exists:reservation_slots,id',

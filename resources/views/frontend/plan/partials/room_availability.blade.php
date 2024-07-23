@@ -29,7 +29,7 @@
                 <p>部屋タイプ: <span id="selectedRoomType"></span></p>
                 <p>空室数: <span id="availableRooms"></span></p>
                 <p>料金: ¥<span id="roomPrice"></span></p>
-                <form id="reservationForm" action="{{ route('user.reservation.create') }}" method="GET">
+                <form id="reservationForm" action="{{ route('user.reservation.store') }}" method="GET">
                     <input type="hidden" name="plan" id="planId">
                     <input type="hidden" name="date" id="reservationDate">
                     <input type="hidden" name="room_type" id="roomTypeId">
@@ -41,30 +41,34 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-primary" onclick="submitReservation()">予約へ進む</button>
+                @auth
+                    <button type="button" class="btn btn-primary" onclick="submitReservation()">予約へ進む</button>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-primary">予約へ進む（ログインが必要です）</a>
+                @endauth
             </div>
         </div>
     </div>
 </div>
 
 @push('scripts')
-<script>
-function showReservationModal(planId, date, roomTypeId, availableRooms, price) {
-    document.getElementById('planId').value = planId;
-    document.getElementById('reservationDate').value = date;
-    document.getElementById('roomTypeId').value = roomTypeId;
-    document.getElementById('selectedDate').textContent = date;
-    document.getElementById('selectedRoomType').textContent = document.querySelector(`option[value="${roomTypeId}"]`).textContent;
-    document.getElementById('availableRooms').textContent = availableRooms;
-    document.getElementById('roomPrice').textContent = new Intl.NumberFormat('ja-JP').format(price);
-    document.getElementById('roomCount').max = availableRooms;
+    <script>
+        function showReservationModal(planId, date, roomTypeId, availableRooms, price) {
+            document.getElementById('planId').value = planId;
+            document.getElementById('reservationDate').value = date;
+            document.getElementById('roomTypeId').value = roomTypeId;
+            document.getElementById('selectedDate').textContent = date;
+            document.getElementById('selectedRoomType').textContent = document.querySelector(`option[value="${roomTypeId}"]`).textContent;
+            document.getElementById('availableRooms').textContent = availableRooms;
+            document.getElementById('roomPrice').textContent = new Intl.NumberFormat('ja-JP').format(price);
+            document.getElementById('roomCount').max = availableRooms;
 
-    let modal = new bootstrap.Modal(document.getElementById('reservationModal'));
-    modal.show();
-}
+            let modal = new bootstrap.Modal(document.getElementById('reservationModal'));
+            modal.show();
+        }
 
-function submitReservation() {
-    document.getElementById('reservationForm').submit();
-}
-</script>
+        function submitReservation() {
+            document.getElementById('reservationForm').submit();
+        }
+    </script>
 @endpush

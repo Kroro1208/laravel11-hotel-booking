@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/', [UserController::class, 'index'])->name('user.index');
 Route::get('user/plan/{plan}', [UserPlanController::class, 'show'])->name('user.plan.show');
 
-Route::get('user/plan/reservation', [ReservationController::class, 'create'])->name('user.reservation.create');
+Route::post('user/plan/reservation', [ReservationController::class, 'store'])->name('user.reservation.store');
 
 
 
