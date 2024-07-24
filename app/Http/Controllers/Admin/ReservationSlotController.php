@@ -11,7 +11,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ReservationSlotController extends Controller
@@ -41,72 +40,48 @@ class ReservationSlotController extends Controller
 
     public function store(StoreRequest $request): RedirectResponse
     {
-        Log::info('予約枠作成開始', ['request' => $request->all()]);
-
         try {
-            $roomType = RoomType::findOrFail($request->input('room_type_id'));
-
-            $validatedData = $request->validated();
-
-            Log::info('バリデーション成功', ['validatedData' => $validatedData]);
-
-            $startDate = Carbon::parse($validatedData['start_date']);
-            $endDate = Carbon::parse($validatedData['end_date']);
-            Log::info('日付パース成功', ['startDate' => $startDate, 'endDate' => $endDate]);
-
-            DB::beginTransaction();
-
-            try {
-                $createdOrUpdatedSlots = 0;
-                for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
-                    $slot = ReservationSlot::updateOrCreate(
-                        [
-                            'room_type_id' => $roomType->id,
-                            'date' => $date->format('Y-m-d'),
-                        ],
-                        [
-                            'available_rooms' => $validatedData['available_rooms'],
-                            'price' => $validatedData['price'],
-                        ]
-                    );
-
-                    if ($slot->wasRecentlyCreated) {
-                        $slot->booked_rooms = 0;
-                        $slot->save();
-                    }
-
-                    $createdOrUpdatedSlots++;
-                    Log::info('予約枠作成/更新', [
-                        'date' => $date->format('Y-m-d'),
-                        'slotId' => $slot->id,
-                        'isNewlyCreated' => $slot->wasRecentlyCreated,
-                    ]);
-                }
-
-                DB::commit();
-                Log::info('予約枠作成/更新完了', ['createdOrUpdatedSlots' => $createdOrUpdatedSlots]);
-
-                return to_route('reservationSlot.index')
-                    ->with('success', "{$createdOrUpdatedSlots}件の予約枠が正常に作成または更新されました。");
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('データベース操作エラー', [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                throw $e;
-            }
-        } catch (ValidationException $e) {
-            Log::error('バリデーションエラー', ['errors' => $e->errors()]);
-            return back()->withErrors($e->errors())->withInput();
+            $createdOrUpdatedSlots = $this->createOrUpdateReservationSlots($request);
+            return to_route('reservationSlot.index')
+                ->with('success', "{$createdOrUpdatedSlots}件の予約枠が正常に作成または更新されました。");
         } catch (\Exception $e) {
-            Log::error('予約枠作成エラー', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
             return back()->withInput()
                 ->with('error', '予約枠の作成中にエラーが発生しました: ' . $e->getMessage());
         }
+    }
+
+    private function createOrUpdateReservationSlots(StoreRequest $request): int
+    // 指定された日付範囲内の各日に対して予約枠を作成または更新する詳細なロジック
+    {
+        $validatedData = $request->validated();
+        $roomType = RoomType::findOrFail($validatedData['room_type_id']);
+        $startDate = Carbon::parse($validatedData['start_date']);
+        $endDate = Carbon::parse($validatedData['end_date']);
+
+        return DB::transaction(function () use ($roomType, $validatedData, $startDate, $endDate) {
+            $createdOrUpdatedSlots = 0;
+
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                $this->updateOrCreateSlot($roomType, $date, $validatedData);
+                $createdOrUpdatedSlots++;
+            }
+            return $createdOrUpdatedSlots; // 何日分の予約が作られたか（または更新されたか）」をカウント
+        });
+    }
+
+    private function updateOrCreateSlot(RoomType $roomType, Carbon $date, array $validatedData): void
+    {
+        // 特定の日付と部屋タイプに対する個々の予約枠を更新または作成するロジック
+        ReservationSlot::updateOrCreate(
+            [
+                'room_type_id' => $roomType->id,
+                'date' => $date->format('Y-m-d'),
+            ],
+            [
+                'available_rooms' => $validatedData['available_rooms'],
+                'price' => $validatedData['price'],
+            ]
+        );
     }
 
     public function edit(ReservationSlot $reservationSlot)
