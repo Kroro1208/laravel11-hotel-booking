@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Plan;
+use App\Http\Requests\Admin\ReservationSlotController\StoreRequest;
 use App\Models\ReservationSlot;
 use App\Models\RoomType;
 use Carbon\Carbon;
-use Illuminate\Contracts\View\View as ViewView;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,25 +39,14 @@ class ReservationSlotController extends Controller
         return view('backend.reservationSlots.create', compact('roomTypes', 'startDate', 'endDate'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreRequest $request): RedirectResponse
     {
         Log::info('予約枠作成開始', ['request' => $request->all()]);
 
         try {
             $roomType = RoomType::findOrFail($request->input('room_type_id'));
 
-            $validatedData = $request->validate([
-                'room_type_id' => 'required|exists:room_types,id',
-                'start_date' => 'required|date|after_or_equal:today',
-                'end_date' => 'required|date|after_or_equal:start_date',
-                'available_rooms' => [
-                    'required',
-                    'integer',
-                    'min:1',
-                    "max:{$roomType->number_of_rooms}",
-                ],
-                'price' => 'required|numeric|min:0',
-            ]);
+            $validatedData = $request->validated();
 
             Log::info('バリデーション成功', ['validatedData' => $validatedData]);
 
