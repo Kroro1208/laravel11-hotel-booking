@@ -11,18 +11,15 @@ class ReservationSlot extends Model
     use HasFactory;
 
     protected $fillable = [
-        'plan_id',
         'room_type_id',
         'date',
-        'total_rooms',
+        'available_rooms',
         'booked_rooms',
-        'status',
+        'price'
     ];
 
     protected $casts = [
         'date' => 'date',
-        'total_rooms' => 'integer',
-        'booked_rooms' => 'integer',
     ];
 
     public function plan()

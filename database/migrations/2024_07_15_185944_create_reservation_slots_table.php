@@ -10,15 +10,12 @@ return new class extends Migration
     {
         Schema::create('reservation_slots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('plan_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('room_type_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('room_type_id')->constrained();
             $table->date('date');
-            $table->integer('total_rooms');  // プラン作成時に設定したroom_count
-            $table->integer('booked_rooms')->default(0);  // 予約された部屋数
-            $table->enum('status', ['available', 'few', 'unavailable'])->default('available');
-            $table->index('date');
+            $table->integer('available_rooms');
+            $table->integer('booked_rooms')->default(0);
+            $table->decimal('price', 10, 2);
             $table->timestamps();
-            $table->unique(['plan_id', 'room_type_id', 'date']);
         });
     }
 

@@ -19,29 +19,17 @@
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class="bx bx-category"></i>
                 </div>
-                <div class="menu-title">アプリ</div>
             </a>
-            <ul>
-                <li> <a href="app-emailbox.html"><i class='bx bx-radio-circle'></i>Email</a>
-                </li>
-                <li> <a href="app-chat-box.html"><i class='bx bx-radio-circle'></i>Chat Box</a>
-                </li>
-            </ul>
-        </li>
-        <li>
-            <a href="javascript:;" class="has-arrow">
-                <div class="parent-icon"><i class="bx bx-category"></i>
-                </div>
-                <div class="menu-title">予約エリア</div>
-            </a>
-            <ul>
-                <li> <a href="{{ route('plan.create') }}"><i class='bx bx-radio-circle'></i>プラン作成</a>
-                </li>
-            </ul>
-            <ul>
-                <li> <a href="{{ route('plan.index') }}"><i class='bx bx-radio-circle'></i>プラン一覧</a>
-                </li>
-            </ul>
+            <div class="menu-title">
+                <a href={{route('reservationSlot.create')}}>予約枠作成</a>
+            </div>
+            <div class="menu-title">
+                <a href={{route('reservationSlot.index')}}>予約枠一覧</a>
+            </div>
+            <div> <a href="{{ route('plan.create') }}"><i class='bx bx-radio-circle'></i>プラン作成</a>
+            </div>
+            <div> <a href="{{ route('plan.index') }}"><i class='bx bx-radio-circle'></i>プラン一覧</a>
+            </div>
         </li>
         <li class="menu-label">UI Elements</li>
         <li>

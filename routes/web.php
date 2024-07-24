@@ -54,7 +54,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/plans/{plan}/availability', [AdminPlanController::class, 'getAvailability'])->name('plan.availability');
 
     Route::prefix('reservationSlot')->name('reservationSlot.')->group(function () {
-        Route::patch('/{plan}', [ReservationSlotController::class, 'update'])->name('update');
+        Route::get('/index', [ReservationSlotController::class, 'index'])->name('index');
+        Route::get('/create', [ReservationSlotController::class, 'create'])->name('create');
+        Route::post('/store', [ReservationSlotController::class, 'store'])->name('store');
+        Route::get('/{reservationSlot}/edit', [ReservationSlotController::class, 'edit'])->name('edit');
+        Route::patch('/{reservationSlot}', [ReservationSlotController::class, 'update'])->name('update');
+        Route::delete('/{reservationSlot}', [ReservationSlotController::class, 'destroy'])->name('destroy');
     });
 });
 

@@ -15,6 +15,9 @@ return new class() extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->unsignedInteger('capacity')->default(1);
+            $table->unsignedInteger('number_of_rooms');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
