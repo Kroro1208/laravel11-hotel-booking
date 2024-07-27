@@ -1,62 +1,58 @@
 @extends('admin.dashboard')
 
 @section('content')
-<div class="container">
-    <h1>{{ $plan->title }}</h1>
-    <div class="card mb-4">
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">{{ $plan->title }}</h2>
+            <a href="{{ route('plan.index') }}" class="btn btn-light">戻る</a>
+        </div>
         <div class="card-body">
-            <h5 class="card-title">プラン詳細</h5>
-            <p><strong>説明:</strong> {{ $plan->description }}</p>
-            <p><strong>価格:</strong> {{ number_format($plan->price) }}円</p>
-            <p><strong>期間:</strong> {{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>詳細</h4>
+                    <p>{{ $plan->description }}</p>
+                    <h4>期間</h4>
+                    <p>{{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</p>
+                    <h4>部屋タイプ</h4>
+                    <ul>
+                        @foreach($plan->roomTypes as $roomType)
+                            <li>{{ $roomType->name }} ({{ $roomType->pivot->room_count }}部屋)</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4>画像</h4>
+                    <div id="planCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            @foreach($plan->images as $index => $image)
+                                <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                    <img src="{{ asset('storage/' . $image) }}" class="d-block w-100" alt="プラン画像">
+                                </div>
+                            @endforeach
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#planCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#planCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{{ route('plan.edit', $plan) }}" class="btn btn-primary">編集</a>
+            <form action="{{ route('plan.destroy', $plan) }}" method="POST" class="d-inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger" onclick="return confirm('本当にこのプランを削除しますか？この操作は取り消せません。')">
+                    削除
+                </button>
+            </form>
         </div>
     </div>
-
-    <h2>予約枠情報</h2>
-    <div class="mb-5">
-        <a href="{{ route('plan.index') }}" class="btn btn-secondary">プラン一覧に戻る</a>
-    </div>
-
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <form action="#" method="POST">
-        @csrf
-        @method('PATCH')
-        @foreach($reservationSlots as $roomTypeId => $slots)
-            <h3>{{ $slots->first()->roomType->name }}</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>日付</th>
-                        <th>総部屋数</th>
-                        <th>予約済み</th>
-                        <th>残り</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($slots as $slot)
-                        <tr>
-                            <td>{{ $slot->date->format('Y/m/d') }}</td>
-                            <td>
-                                <input type="number" name="slots[{{ $slot->id }}][total_rooms]"
-                                    value="{{ $slot->total_rooms }}" min="{{ $slot->booked_rooms }}" class="form-control">
-                            </td>
-                            <td>{{ $slot->booked_rooms }}</td>
-                            <td>{{ $slot->total_rooms - $slot->booked_rooms }}</td>
-                            <td>
-                                <button type="submit" name="update_slot" value="{{ $slot->id }}" class="btn btn-primary btn-sm">更新</button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endforeach
-    </form>
 </div>
 @endsection

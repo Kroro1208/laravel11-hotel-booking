@@ -1,140 +1,95 @@
 @extends('admin.dashboard')
+
 @section('content')
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <div class="page-content">
-        <div class="container">
-            <div class="main-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                        <div class="card shadow">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">プランを編集</h4>
-                            </div>
-                            <div class="card-body">
-                                <form action="{{ route('plan.update', $plan) }}" method="post" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="mb-4">
-                                        <label for="title" class="form-label">プラン名</label>
-                                        <input type="text" id="title" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $plan->title) }}" required>
-                                        @error('title')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="price" class="form-label">基本価格</label>
-                                        <input type="number" id="price" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $plan->price) }}" required min="0" step="1">
-                                        @error('price')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">プラン編集: {{ $plan->title }}</h2>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('plan.update', $plan) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PATCH')
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">タイトル</label>
+                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $plan->title) }}" required>
+                    @error('title')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                                    <div class="mb-4">
-                                        <label for="description" class="form-label">詳細</label>
-                                        <textarea id="description" name="description" rows="4" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $plan->description) }}</textarea>
-                                        @error('description')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">説明</label>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3" required>{{ old('description', $plan->description) }}</textarea>
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                                    <div class="mb-4">
-                                        <label for="image" class="form-label">画像</label>
-                                        <input type="file" id="image" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                                        @error('image')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <div class="mt-2 text-center">
-                                            <img id="showImage" src="{{ asset($plan->image ? 'storage/'.$plan->image : 'upload/no_image.jpg') }}" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <label for="start_date" class="form-label">開始日</label>
-                                            <input type="date" id="start_date" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', $plan->start_date->format('Y-m-d')) }}" required>
-                                            @error('start_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="end_date" class="form-label">終了日</label>
-                                            <input type="date" id="end_date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', $plan->end_date->format('Y-m-d')) }}" required>
-                                            @error('end_date')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4">
-                                        <label class="form-label">部屋タイプと予約枠</label>
-                                        <div id="room-types-container">
-                                            @foreach($plan->planRooms as $planRoom)
-                                                <div class="room-type-entry mb-3">
-                                                    <div class="input-group">
-                                                        <span class="input-group-text">部屋タイプ</span>
-                                                        <select name="room_types[]" class="form-select @error('room_types.*') is-invalid @enderror" required>
-                                                            <option value="">選択してください</option>
-                                                            @foreach($roomTypes as $type)
-                                                                <option value="{{ $type->id }}" {{ $planRoom->roomType->id == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <span class="input-group-text">予約枠</span>
-                                                        <input type="number" name="room_counts[]" class="form-control @error('room_counts.*') is-invalid @enderror" placeholder="部屋数" required min="1" value="{{ $planRoom->room_count }}">
-                                                        <button type="button" class="btn btn-danger remove-room-type">削除</button>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <button type="button" class="btn btn-secondary mt-2" id="add-room-type">部屋タイプを追加</button>
-                                    </div>
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary btn-lg px-5 mb-5">プラン更新</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="start_date" class="form-label">開始日</label>
+                        <input type="date" class="form-control @error('start_date') is-invalid @enderror" id="start_date" name="start_date" value="{{ old('start_date', $plan->start_date->format('Y-m-d')) }}" required>
+                        @error('start_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="end_date" class="form-label">終了日</label>
+                        <input type="date" class="form-control @error('end_date') is-invalid @enderror" id="end_date" name="end_date" value="{{ old('end_date', $plan->end_date->format('Y-m-d')) }}" required>
+                        @error('end_date')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label class="form-label">部屋タイプ</label>
+                    @foreach($roomTypes as $roomType)
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="room_types[]" value="{{ $roomType->id }}" id="roomType{{ $roomType->id }}" 
+                                {{ in_array($roomType->id, old('room_types', $plan->roomTypes->pluck('id')->toArray())) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="roomType{{ $roomType->id }}">
+                                {{ $roomType->name }}
+                            </label>
+                            <input type="number" class="form-control form-control-sm d-inline-block w-auto ms-2" 
+                                name="room_count[{{ $roomType->id }}]" 
+                                value="{{ old('room_count.' . $roomType->id, $plan->roomTypes->find($roomType->id)->pivot->room_count ?? 1) }}" 
+                                min="1">
+                            <span class="ms-1">部屋</span>
+                        </div>
+                    @endforeach
+                    @error('room_types')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="images" class="form-label">画像</label>
+                    <input type="file" class="form-control @error('images') is-invalid @enderror" id="images" name="images[]" multiple>
+                    @error('images')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">現在の画像</label>
+                    <div class="row">
+                        @foreach($plan->images as $image)
+                            <div class="col-md-3 mb-2">
+                                <img src="{{ asset('storage/' . $image) }}" class="img-thumbnail" alt="プラン画像">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">更新</button>
+                    <a href="{{ route('plan.index') }}" class="btn btn-secondary">キャンセル</a>
+                </div>
+            </form>
         </div>
     </div>
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        function initImagePreview() {
-            $('#image').change(function(e) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#showImage').attr('src', e.target.result);
-                }
-                reader.readAsDataURL(e.target.files[0]);
-            });
-        }
-
-        function initRoomTypeManagement() {
-            const addButton = document.getElementById('add-room-type');
-            const container = document.getElementById('room-types-container');
-
-            addButton.addEventListener('click', () => {
-                const template = document.querySelector('.room-type-entry');
-                if (!template) return console.error('クラスが見つかりません');
-
-                const newEntry = template.cloneNode(true);
-                newEntry.querySelector('select').selectedIndex = 0;
-                newEntry.querySelector('input[type="number"]').value = '';
-                container.appendChild(newEntry);
-            });
-
-            container.addEventListener('click', e => {
-                if (e.target.classList.contains('remove-room-type')) {
-                    const entry = e.target.closest('.room-type-entry');
-                    if (entry && container.children.length > 1) entry.remove();
-                }
-            });
-        }
-
-        initImagePreview();
-        initRoomTypeManagement();
-    });
-</script>
+</div>
 @endsection
