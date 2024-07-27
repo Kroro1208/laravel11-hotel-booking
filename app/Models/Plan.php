@@ -27,6 +27,21 @@ class Plan extends Model
         'is_reserved' => 'boolean',
     ];
 
+    public function planRooms()
+    {
+        return $this->hasMany(PlanRoom::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    public function reservationSlots()
+    {
+        return $this->hasMany(ReservationSlot::class);
+    }
+
     public function roomTypes(): BelongsToMany
     {
         return $this->belongsToMany(RoomType::class, 'plan_rooms')

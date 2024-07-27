@@ -22,11 +22,6 @@ class ReservationSlot extends Model
         'date' => 'date',
     ];
 
-    public function plan()
-    {
-        return $this->belongsTo(Plan::class);
-    }
-
     public function roomType()
     {
         return $this->belongsTo(RoomType::class);
@@ -45,36 +40,20 @@ class ReservationSlot extends Model
         ];
     }
 
-    public function getAvailableRoomsForDate($date)
-    {
-        if ($date >= $this->date && $date <= $this->plan->end_date) {
-            return $this->getAvailableRooms();
-        }
-        return 0;
-    }
-
     public function updateStatus()
     {
-        $planRoom = $this->plan->planRooms()->where('room_type_id', $this->room_type_id)->first();
-
-        if (!$planRoom) {
-            throw new \Exception('関連する PlanRoom が見つかりません。');
-        }
-
-        $availableRooms = $this->getAvailableRooms();
-        $availablePercentage = ($availableRooms / $planRoom->room_count) * 100;
+        $availableRooms = $this->available_rooms - $this->booked_rooms;
+        $totalRooms = $this->available_rooms;
 
         if ($availableRooms <= 0) {
             $this->status = self::STATUS_UNAVAILABLE;
-        } elseif ($availablePercentage <= 30) {
+        } elseif ($availableRooms <= $totalRooms * 0.3) {
             $this->status = self::STATUS_FEW;
         } else {
             $this->status = self::STATUS_AVAILABLE;
         }
 
         $this->save();
-
-        $this->plan->updateReservationStatus();
     }
 
     public function book($roomCount = 1)
@@ -83,7 +62,7 @@ class ReservationSlot extends Model
             throw new \InvalidArgumentException('予約する部屋数は1以上である必要があります。');
         }
 
-        $availableRooms = $this->getAvailableRooms();
+        $availableRooms = $this->available_rooms - $this->booked_rooms;
 
         if ($availableRooms < $roomCount) {
             throw new \Exception("予約可能な部屋数が不足しています。予約可能数: {$availableRooms}, 要求数: {$roomCount}");
@@ -119,12 +98,6 @@ class ReservationSlot extends Model
 
     public function getAvailableRooms()
     {
-        $planRoom = $this->plan->planRooms()->where('room_type_id', $this->room_type_id)->first();
-
-        if (!$planRoom) {
-            throw new \Exception('関連する PlanRoom が見つかりません。');
-        }
-
-        return $planRoom->room_count - $this->booked_rooms;
+        return $this->available_rooms - $this->booked_rooms;
     }
 }

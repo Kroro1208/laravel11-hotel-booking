@@ -52,7 +52,10 @@
                                 <a href="{{ route('plan.edit', $plan) }}" class="btn btn-sm btn-outline-primary">
                                     編集
                                 </a>
-                                <form method="POST" action="{{ route('plan.destroy', $plan) }}" class="d-inline delete-form">
+                                <form method="POST" action="{{ route('plan.destroy', $plan) }}"
+                                    onclick="return confirm('本当にこのプランを削除しますか？この操作は取り消せません。')"
+                                    class="d-inline delete-form"
+                                    >
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger">

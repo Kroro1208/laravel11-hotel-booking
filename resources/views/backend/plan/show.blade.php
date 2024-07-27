@@ -1,8 +1,8 @@
 @extends('admin.dashboard')
 
 @section('content')
-<div class="container py-4">
-    <div class="card">
+<div class="container py-5">
+    <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h2 class="mb-0">{{ $plan->title }}</h2>
             <a href="{{ route('plan.index') }}" class="btn btn-light">戻る</a>
@@ -10,24 +10,58 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h4>詳細</h4>
-                    <p>{{ $plan->description }}</p>
-                    <h4>期間</h4>
-                    <p>{{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</p>
-                    <h4>部屋タイプ</h4>
-                    <ul>
+                    <div class="mb-4">
+                        <h4 class="text-primary">詳細</h4>
+                        <p class="text-muted">{{ $plan->description }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="text-primary">期間</h4>
+                        <p class="text-muted">{{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-primary mb-3">部屋タイプと予約枠</h4>
                         @foreach($plan->roomTypes as $roomType)
-                            <li>{{ $roomType->name }} ({{ $roomType->pivot->room_count }}部屋)</li>
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">{{ $roomType->name }} ({{ $roomType->pivot->room_count }}部屋)</h5>
+                                </div>
+                                <div class="card-body">
+                                    @if(isset($reservationSlots[$roomType->id]))
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>日付</th>
+                                                        <th>利用可能な部屋数</th>
+                                                        <th>料金 (1泊)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($reservationSlots[$roomType->id] as $slot)
+                                                        <tr>
+                                                            <td>{{ \Carbon\Carbon::parse($slot->date)->format('Y/m/d') }}</td>
+                                                            <td>{{ $slot->available_rooms }}</td>
+                                                            <td class="text-end">{{ number_format($slot->price) }}円</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <p class="text-muted fst-italic">この部屋タイプの予約枠情報はありません。</p>
+                                    @endif
+                                </div>
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
                 <div class="col-md-6">
-                    <h4>画像</h4>
+                    <h4 class="text-primary mb-3">画像</h4>
                     <div id="planCarousel" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             @foreach($plan->images as $index => $image)
                                 <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                    <img src="{{ asset('storage/' . $image) }}" class="d-block w-100" alt="プラン画像">
+                                    <img src="{{ asset('storage/' . $image) }}" class="d-block w-100 rounded" alt="プラン画像">
                                 </div>
                             @endforeach
                         </div>
@@ -43,15 +77,8 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer text-end">
             <a href="{{ route('plan.edit', $plan) }}" class="btn btn-primary">編集</a>
-            <form action="{{ route('plan.destroy', $plan) }}" method="POST" class="d-inline">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger" onclick="return confirm('本当にこのプランを削除しますか？この操作は取り消せません。')">
-                    削除
-                </button>
-            </form>
         </div>
     </div>
 </div>
