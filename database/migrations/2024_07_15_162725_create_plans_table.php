@@ -13,9 +13,8 @@ return new class() extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
+            $table->json('images');
             $table->string('title');
-            $table->decimal('price', 10, 2);
             $table->text('description');
             $table->date('start_date');
             $table->date('end_date');

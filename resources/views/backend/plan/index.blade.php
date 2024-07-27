@@ -1,15 +1,6 @@
 @extends('admin.dashboard')
 
 @section('content')
-<style>
-    .plan-room-list .list-group-item {
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-    }
-    .plan-room-list .room-type-name {
-        font-weight: 500;
-    }
-</style>
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">ホテル予約プラン一覧</h2>
@@ -29,32 +20,30 @@
         @foreach($plans as $plan)
             <div class="col">
                 <div class="card h-100 shadow-sm">
-                    <div class="position-relative">
-                        <img src="{{ asset('storage/' . $plan->image) }}" class="card-img-top" alt="プラン画像" style="height: 200px; object-fit: cover;">
-                        <div class="position-absolute top-0 end-0 m-2">
-                            <span class="badge {{ $plan->is_reserved ? 'bg-danger' : 'bg-success' }} fs-6">
-                                {{ $plan->is_reserved ? '満室' : '予約可能' }}
-                            </span>
-                        </div>
+                    <div class="plan-image-container">
+                        @if($plan->images && count($plan->images) > 0)
+                            <img src="{{ asset('storage/' . $plan->images[0]) }}" class="card-img-top" alt="プラン画像">
+                        @else
+                            <img src="{{ asset('images/no-image.jpg') }}" class="card-img-top" alt="画像なし">
+                        @endif
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">{{ $plan->title }}</h5>
                         <p class="card-text">{{ Str::limit($plan->description, 100) }}</p>
-                        <h6 class="card-subtitle mb-2 text-primary">¥{{ number_format($plan->price) }} / 泊</h6>
+                        <div class="mt-2">
+                            <strong>適用部屋タイプ：</strong><br>
+                            @foreach($plan->roomTypes as $roomType)
+                                <span class="badge bg-secondary room-type-badge">{{ $roomType->name }}</span>
+                            @endforeach
+                        </div>
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><i class="bi bi-calendar-range"></i> <strong>期間：</strong> {{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}</li>
+                        <li class="list-group-item">
+                            <i class="bi bi-calendar-range"></i> 
+                            <strong>期間：</strong> {{ $plan->start_date->format('Y/m/d') }} 〜 {{ $plan->end_date->format('Y/m/d') }}
+                        </li>
                     </ul>
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">利用可能な部屋タイプ</h6>
-                            <ul class="list-group list-group-flush mb-3 plan-room-list">
-                                @foreach($plan->planRooms as $planRoom)
-                                    <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
-                                        <span class="room-type-name">{{ $planRoom->roomType->name }}</span>
-                                        <span class="badge bg-primary rounded-pill fs-6">{{ $planRoom->room_count }}室</span>
-                                    </li>
-                                @endforeach
-                            </ul>
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('plan.show', $plan) }}" class="btn btn-sm btn-outline-secondary">
                                 詳細
@@ -77,12 +66,35 @@
             </div>
         @endforeach
     </div>
+
+    <div class="mt-4">
+        {{ $plans->links() }}
+    </div>
 </div>
 @endsection
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 <style>
+    .plan-image-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 アスペクト比 */
+        height: 0;
+        overflow: hidden;
+    }
+    .plan-image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .room-type-badge {
+        font-size: 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
     .card {
         transition: transform 0.2s;
     }
