@@ -38,7 +38,7 @@
                         </li>
                     </ul>
                     <div class="card-footer bg-transparent border-top-0">
-                        <a href="{{ route('plan.show', $plan) }}" class="btn btn-outline-primary w-100">詳細を見る</a>
+                        <a href="{{ route('user.plan.show', $plan) }}" class="btn btn-outline-primary w-100">詳細を見る</a>
                     </div>
                 </div>
             </div>
