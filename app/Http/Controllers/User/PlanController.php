@@ -7,66 +7,37 @@ use App\Models\Plan;
 use App\Models\ReservationSlot;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use DragonCode\Contracts\Cashier\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PlanController extends Controller
 {
-    public function show(Plan $plan): View
+    public function index(): View
     {
-        $startDate = Carbon::parse($plan->start_date);
-        $endDate = Carbon::parse($plan->end_date);
+        $plans = Plan::with('roomTypes')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->paginate(12);
 
-        $months = [];
-        $calendar = [];
-        $current = $startDate->copy()->startOfMonth();
+        return view('frontend.index', ['plans' => $plans]);
+    }
 
-        while ($current <= $endDate) {
-            $year = $current->year;
-            $month = $current->month;
+    public function show(Request $request, Plan $plan): View
+    {
+        $plan->load('roomTypes');
 
-            if (!isset($months[$year])) {
-                $months[$year] = [];
-            }
-            $months[$year][] = $month;
+        $roomTypeId = $$request->query('key', 'default')('room_type_id', $plan->roomTypes->first()->id);
 
-            $calendar[$year][$month] = [];
-            $monthStart = $current->copy()->startOfMonth();
-            $monthEnd = $current->copy()->endOfMonth();
-
-            $week = [];
-            $weekStart = $monthStart->copy()->startOfWeek(CarbonInterface::SUNDAY);
-            while ($weekStart <= $monthEnd) {
-                for ($i = 0; $i < 7; $i++) {
-                    $date = $weekStart->copy();
-                    $inRange = $date->between($startDate, $endDate);
-                    $week[] = [
-                        'date' => $date,
-                        'in_range' => $inRange
-                    ];
-                    $weekStart->addDay();
-                }
-                $calendar[$year][$month][] = $week;
-                $week = [];
-            }
-
-            $current->addMonth();
-        }
-
-        // 予約枠情報を取得し、room_type_idとdateでグループ化
-        $reservationSlots = $plan->reservationSlots()
-            ->with('roomType')
-            ->whereBetween('date', [$startDate, $endDate])
+        $reservationSlots = ReservationSlot::where('room_type_id', $roomTypeId)
+            ->where('date', '>=', now())
+            ->where('date', '<=', now()->addMonths(2)->endOfMonth())
             ->get()
-            ->groupBy(['room_type_id', function ($item) {
-                return Carbon::parse($item->date)->format('Y-m-d');
-            }]);
+            ->keyBy('date');
 
-        Log::info("Number of reservation slots: " . $reservationSlots->count());
-
-        // ReservationSlotのステータスオプションを取得
-        $statusOptions = ReservationSlot::getStatusOptions();
-
-        return view('frontend.plan.show', compact('plan', 'months', 'calendar', 'reservationSlots', 'statusOptions'));
+        return view('frontend.plan.show', [
+            'plan' => $plan,
+            'reservationSlots' => $reservationSlots,
+        ]);
     }
 }

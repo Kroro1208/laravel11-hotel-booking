@@ -5,14 +5,15 @@
             <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one" alt="Logo">
             <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-two" alt="Logo">
         </a>
+        <h1>みんなの予約旅</h1>
     </div>
 
     <div class="main-nav">
         <div class="container">
             <nav class="navbar navbar-expand-md navbar-light ">
-                <a class="navbar-brand" href="{{ route('user.index') }}">
-                    <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one" alt="Logo" width="80px" height="80px">
-                    <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-two" alt="Logo" width="80px" height="80px">
+                <a class="navbar-brand d-flex align-items-center mt-2" href="{{ route('user.index') }}">
+                    <img src="{{ asset('frontend/assets/img/logos/gate.png') }}" class="logo-one me-3" alt="Logo" width="80px" height="80px">
+                    <h2 class="mb-0">みんなの予約旅</h2>
                 </a>
                 <div class="collapse navbar-collapse mean-menu" id="navbarSupportedContent">
                     <ul class="navbar-nav m-auto">
